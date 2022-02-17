@@ -69,7 +69,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             _genesisContract = GenesisContract.GetGenesisContract(NodeManager, InitAccount);
             _tokenContract = _genesisContract.GetTokenContract(InitAccount);
-            
+
             AddWhiteList();
             ContractInitialize();
         }
@@ -677,15 +677,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var startingPrice = 10;
             var purchaseSymbol = "ELF";
             var startTime = DateTime.UtcNow.AddHours(12).ToTimestamp();
-            var publicTime = DateTime.UtcNow.AddHours(24).ToTimestamp();
             var durationHours = 48;
             var earnestMoney = startingPrice;
-            var whiteSymbol = "ELF";
-            var whitePrice = 9_00000000;
             var symbol = CreateAndMintUnReuse(totalSupply, mintAmount, tokenId);
 
             ListWithEnglistAuction(symbol, tokenId, startingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, earnestMoney, whiteSymbol, whitePrice);
+                startTime, durationHours, earnestMoney);
 
             CheckEnglishAuctionInfo(symbol, tokenId, new EnglishAuctionInfo
             {
@@ -696,7 +693,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Duration = new ListDuration
                 {
                     StartTime = startTime,
-                    PublicTime = publicTime,
                     DurationHours = durationHours
                 },
                 Owner = InitAccount.ConvertAddress(),
@@ -724,8 +720,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 purchaseSymbol,
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -743,8 +738,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 purchaseSymbol,
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -757,8 +751,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 purchaseSymbol,
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -771,8 +764,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 0,
                 purchaseSymbol,
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -784,8 +776,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 -1,
                 purchaseSymbol,
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -798,8 +789,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 purchaseSymbol,
                 new ListDuration(),
-                earnestMoney + 1,
-                new WhiteListAddressPriceList()
+                earnestMoney + 1
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -812,8 +802,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 "USDT",
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -832,8 +821,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 symbol,
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -845,8 +833,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 purchaseSymbol,
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.Mined);
@@ -883,14 +870,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var endingPrice = 1_00000000;
             var purchaseSymbol = "ELF";
             var startTime = DateTime.UtcNow.AddHours(12).ToTimestamp();
-            var publicTime = DateTime.UtcNow.AddHours(24).ToTimestamp();
             var durationHours = 48;
-            var whiteSymbol = "ELF";
-            var whitePrice = 9_00000000;
             var symbol = CreateAndMintUnReuse(totalSupply, mintAmount, tokenId);
 
             ListWithDutchAuction(symbol, tokenId, startingPrice, endingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, whiteSymbol, whitePrice);
+                startTime, durationHours);
 
             CheckDutchAuctionInfo(symbol, tokenId, new DutchAuctionInfo
             {
@@ -902,7 +886,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 Duration = new ListDuration
                 {
                     StartTime = startTime,
-                    PublicTime = publicTime,
                     DurationHours = durationHours
                 },
                 Owner = InitAccount.ConvertAddress()
@@ -927,8 +910,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 endingPrice,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -946,8 +928,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 endingPrice,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -960,8 +941,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 endingPrice,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -974,8 +954,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 0,
                 endingPrice,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -987,8 +966,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 -1,
                 endingPrice,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -1001,8 +979,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 0,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -1014,8 +991,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 -1,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -1027,8 +1003,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 startingPrice,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -1040,8 +1015,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 startingPrice + 1,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -1054,8 +1028,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 endingPrice,
                 "USDT",
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -1074,8 +1047,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 endingPrice,
                 symbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -1088,8 +1060,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 endingPrice,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.Mined);
@@ -1154,8 +1125,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 purchaseSymbol,
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -1167,8 +1137,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 endingPrice,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -2238,11 +2207,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void DealWithListWithEnglistAuctionTest(string listType, long purchaseAmount)
         {
             var startTime = DateTime.UtcNow.AddSeconds(10).ToTimestamp();
-            var publicTime = DateTime.UtcNow.AddSeconds(60).ToTimestamp();
             var tokenId = 1;
             var makeOffAmount = 1;
             var purchaseSymbol = "USDT";
-
             var dealAmount = 1;
             var expireTime = startTime.AddHours(1);
             var serviceFeeReceiver = WhiteListAddress2;
@@ -2250,12 +2217,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var symbol = CreateAndMintUnReuse(1, 1, tokenId);
             var startingPrice = 10_00000000;
             var earnestMoney = 5_00000000;
-            var whiteSymbol = "ELF";
-            var whitePrice = 5_00000000;
             var durationHours = 48;
 
             ListWithEnglistAuction(symbol, tokenId, startingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, earnestMoney, whiteSymbol, whitePrice);
+                startTime, durationHours, earnestMoney);
 
             // Set service
             var serviceFeeResult = _nftMarketContract.SetServiceFee(20, serviceFeeReceiver);
@@ -2393,7 +2358,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void ListWithEnglistAuctionAgainTest()
         {
             var startTime = DateTime.UtcNow.AddSeconds(10).ToTimestamp();
-            var publicTime = DateTime.UtcNow.AddSeconds(60).ToTimestamp();
             var tokenId = 1;
             var makeOffAmount = 1;
             var purchaseSymbol = "USDT";
@@ -2401,13 +2365,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var symbol = CreateAndMintUnReuse(1, 1, tokenId);
             var startingPrice = 10_00000000;
             var earnestMoney = 5_00000000;
-            var whiteSymbol = "ELF";
-            var whitePrice = 5_00000000;
             var durationHours = 48;
             var purchaseAmount = 12_00000000;
 
             ListWithEnglistAuction(symbol, tokenId, startingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, earnestMoney, whiteSymbol, whitePrice);
+                startTime, durationHours, earnestMoney);
 
             _nftMarketContract.SetAccount(BuyerAccount);
             var approveResult =
@@ -2454,7 +2416,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             (buyerBalance - buyerBalanceBefore).ShouldBe(earnestMoney);
 
             var listWithEnglistAuctionResult = ListWithEnglistAuction(symbol, tokenId, startingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, earnestMoney, whiteSymbol, whitePrice);
+                startTime, durationHours, earnestMoney);
             listWithEnglistAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.Mined);
 
@@ -2477,10 +2439,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var endingPrice = 1_00000000;
             var purchaseSymbol = "USDT";
             var startTime = DateTime.UtcNow.AddSeconds(5).ToTimestamp();
-            var publicTime = DateTime.UtcNow.AddHours(24).ToTimestamp();
             var durationHours = 48;
-            var whiteSymbol = "ELF";
-            var whitePrice = 9_00000000;
             var symbol = CreateAndMintUnReuse(totalSupply, mintAmount, tokenId);
             var serviceFeeReceiver = WhiteListAddress2;
             var royaltyFeeReceiver = WhiteListAddress3;
@@ -2490,7 +2449,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var dealAmount = 1;
 
             ListWithDutchAuction(symbol, tokenId, startingPrice, endingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, whiteSymbol, whitePrice);
+                startTime, durationHours);
 
             // Set service
             var serviceFeeResult = _nftMarketContract.SetServiceFee(20, serviceFeeReceiver);
@@ -2604,17 +2563,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var endingPrice = 1_00000000;
             var purchaseSymbol = "USDT";
             var startTime = DateTime.UtcNow.AddSeconds(5).ToTimestamp();
-            var publicTime = DateTime.UtcNow.AddHours(24).ToTimestamp();
             var durationHours = 48;
-            var whiteSymbol = "ELF";
-            var whitePrice = 9_00000000;
             var symbol = CreateAndMintUnReuse(totalSupply, mintAmount, tokenId);
             var makeOffAmount = 1;
             var expireTime = DateTime.UtcNow.AddHours(48).ToTimestamp();
             var purchaseAmount = 6_00000000;
 
             ListWithDutchAuction(symbol, tokenId, startingPrice, endingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, whiteSymbol, whitePrice);
+                startTime, durationHours);
 
             _nftMarketContract.SetAccount(BuyerAccount);
             var approveResult =
@@ -2662,7 +2618,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var buyerBalanceBefore = _tokenContract.GetUserBalance(BuyerAccount, purchaseSymbol);
 
             var listWithDutchAuction = ListWithDutchAuction(symbol, tokenId, startingPrice, endingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, whiteSymbol, whitePrice);
+                startTime, durationHours);
             listWithDutchAuction.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
 
             var bidList = _nftMarketContract.GetBidList(symbol, tokenId);
@@ -2763,7 +2719,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void DelistWithListWithEnglistAuctionTest(string listType, long purchaseAmount)
         {
             var startTime = DateTime.UtcNow.AddSeconds(10).ToTimestamp();
-            var publicTime = DateTime.UtcNow.AddSeconds(60).ToTimestamp();
             var tokenId = 1;
             var makeOffAmount = 1;
             var purchaseSymbol = "USDT";
@@ -2775,12 +2730,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var symbol = CreateAndMintUnReuse(1, 1, tokenId);
             var startingPrice = 10_00000000;
             var earnestMoney = 5_00000000;
-            var whiteSymbol = "ELF";
-            var whitePrice = 5_00000000;
             var durationHours = 48;
 
             ListWithEnglistAuction(symbol, tokenId, startingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, earnestMoney, whiteSymbol, whitePrice);
+                startTime, durationHours, earnestMoney);
 
             // Set service
             var serviceFeeResult = _nftMarketContract.SetServiceFee(20, serviceFeeReceiver);
@@ -2919,10 +2872,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var endingPrice = 1_00000000;
             var purchaseSymbol = "USDT";
             var startTime = DateTime.UtcNow.AddSeconds(5).ToTimestamp();
-            var publicTime = DateTime.UtcNow.AddHours(24).ToTimestamp();
+
             var durationHours = 48;
-            var whiteSymbol = "ELF";
-            var whitePrice = 9_00000000;
             var symbol = CreateAndMintUnReuse(totalSupply, mintAmount, tokenId);
             var serviceFeeReceiver = WhiteListAddress2;
             var makeOffAmount = 1;
@@ -2931,7 +2882,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var delistAmount = 1;
 
             ListWithDutchAuction(symbol, tokenId, startingPrice, endingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, whiteSymbol, whitePrice);
+                startTime, durationHours);
 
             // Set service
             var serviceFeeResult = _nftMarketContract.SetServiceFee(20, serviceFeeReceiver);
@@ -3016,10 +2967,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var endingPrice = 1_00000000;
             var purchaseSymbol = "USDT";
             var startTime = DateTime.UtcNow.AddSeconds(5).ToTimestamp();
-            var publicTime = DateTime.UtcNow.AddHours(24).ToTimestamp();
             var durationHours = 48;
-            var whiteSymbol = "ELF";
-            var whitePrice = 9_00000000;
             var symbol = CreateAndMintUnReuse(totalSupply, mintAmount, tokenId);
             var serviceFeeReceiver = WhiteListAddress2;
             var makeOffAmount = 1;
@@ -3028,7 +2976,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var delistAmount = 1;
 
             ListWithDutchAuction(symbol, tokenId, startingPrice, endingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, whiteSymbol, whitePrice);
+                startTime, durationHours);
 
             // Set service
             var serviceFeeResult = _nftMarketContract.SetServiceFee(20, serviceFeeReceiver);
@@ -3201,14 +3149,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             // ListWithEnglistAuction failed
             var listWithEnglistAuction = ListWithEnglistAuction(symbol, tokenId, startingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, earnestMoney, purchaseSymbol, whitePrice);
+                startTime, durationHours, earnestMoney);
             listWithEnglistAuction.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
             listWithEnglistAuction.Error.ShouldContain("This NFT cannot be listed with auction for now.");
 
             // ListWithDutchAuction failed
             var listWithDutchAuction = ListWithDutchAuction(symbol, tokenId, startingPrice, endingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, purchaseSymbol, whitePrice);
+                startTime, durationHours);
             listWithDutchAuction.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
             listWithDutchAuction.Error.ShouldContain("This NFT cannot be listed with auction for now.");
@@ -3315,9 +3263,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var startingPrice = 10_00000000;
             var endingPrice = 2_00000000;
             var earnestMoney = 1_00000000;
-            var publicTime = startTime.AddHours(10);
             var durationHours = 10;
-            var whitePrice = 5_00000000;
 
             // Make offer
             _nftMarketContract.SetAccount(OtherAccount);
@@ -3373,14 +3319,14 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             // ListWithEnglistAuction failed
             var listWithEnglistAuction = ListWithEnglistAuction(symbol, tokenId, startingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, earnestMoney, purchaseSymbol, whitePrice);
+                startTime, durationHours, earnestMoney);
             listWithEnglistAuction.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
             listWithEnglistAuction.Error.ShouldContain("This NFT cannot be listed with auction for now.");
 
             // ListWithDutchAuction failed
             var listWithDutchAuction = ListWithDutchAuction(symbol, tokenId, startingPrice, endingPrice, purchaseSymbol,
-                startTime, publicTime, durationHours, purchaseSymbol, whitePrice);
+                startTime, durationHours);
             listWithDutchAuction.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
             listWithDutchAuction.Error.ShouldContain("This NFT cannot be listed with auction for now.");
@@ -3648,8 +3594,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
         private TransactionResultDto ListWithEnglistAuction(string symbol, int tokenId, long startingPrice,
             string purchaseSymbol,
-            Timestamp startTime, Timestamp publicTime, int durationHours, long earnestMoney, string whiteSymbol,
-            long whitePrice)
+            Timestamp startTime, int durationHours, long earnestMoney)
         {
             // Approve
             var approve =
@@ -3673,25 +3618,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 new ListDuration
                 {
                     StartTime = startTime,
-                    PublicTime = publicTime,
                     DurationHours = durationHours
                 },
-                earnestMoney,
-                new WhiteListAddressPriceList
-                {
-                    Value =
-                    {
-                        new WhiteListAddressPrice
-                        {
-                            Address = InitAccount.ConvertAddress(),
-                            Price = new Price
-                            {
-                                Symbol = whiteSymbol,
-                                Amount = whitePrice
-                            }
-                        }
-                    }
-                }
+                earnestMoney
             );
 
             return listWithEnglishAuction;
@@ -3700,8 +3629,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private TransactionResultDto ListWithDutchAuction(string symbol, int tokenId, long startingPrice,
             long endingPrice,
             string purchaseSymbol,
-            Timestamp startTime, Timestamp publicTime, int durationHours, string whiteSymbol,
-            long whitePrice)
+            Timestamp startTime, int durationHours)
         {
             // Approve
             var approve =
@@ -3726,23 +3654,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 new ListDuration
                 {
                     StartTime = startTime,
-                    PublicTime = publicTime,
                     DurationHours = durationHours
-                },
-                new WhiteListAddressPriceList
-                {
-                    Value =
-                    {
-                        new WhiteListAddressPrice
-                        {
-                            Address = InitAccount.ConvertAddress(),
-                            Price = new Price
-                            {
-                                Symbol = whiteSymbol,
-                                Amount = whitePrice
-                            }
-                        }
-                    }
                 }
             );
 
@@ -3780,7 +3692,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             englishAuctionInfo.StartingPrice.ShouldBe(expectEnglishAuctionInfo.StartingPrice);
             englishAuctionInfo.PurchaseSymbol.ShouldBe(expectEnglishAuctionInfo.PurchaseSymbol);
             englishAuctionInfo.Duration.StartTime.ShouldBe(expectEnglishAuctionInfo.Duration.StartTime);
-            englishAuctionInfo.Duration.PublicTime.ShouldBe(expectEnglishAuctionInfo.Duration.PublicTime);
             englishAuctionInfo.Duration.DurationHours.ShouldBe(expectEnglishAuctionInfo.Duration.DurationHours);
             englishAuctionInfo.Owner.ShouldBe(expectEnglishAuctionInfo.Owner);
             englishAuctionInfo.EarnestMoney.ShouldBe(expectEnglishAuctionInfo.EarnestMoney);
@@ -3800,7 +3711,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
             dutchAuctionInfo.EndingPrice.ShouldBe(expectDutchAuctionInfo.EndingPrice);
             dutchAuctionInfo.PurchaseSymbol.ShouldBe(expectDutchAuctionInfo.PurchaseSymbol);
             dutchAuctionInfo.Duration.StartTime.ShouldBe(expectDutchAuctionInfo.Duration.StartTime);
-            dutchAuctionInfo.Duration.PublicTime.ShouldBe(expectDutchAuctionInfo.Duration.PublicTime);
             dutchAuctionInfo.Duration.DurationHours.ShouldBe(expectDutchAuctionInfo.Duration.DurationHours);
             dutchAuctionInfo.Owner.ShouldBe(expectDutchAuctionInfo.Owner);
         }
@@ -4075,8 +3985,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     startingPrice,
                     purchaseSymbol,
                     new ListDuration(),
-                    earnestMoney,
-                    new WhiteListAddressPriceList()
+                    earnestMoney
                 );
                 listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                     .ShouldBe(TransactionResultStatus.Mined);
@@ -4090,8 +3999,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     startingPrice,
                     endingPrice,
                     purchaseSymbol,
-                    new ListDuration(),
-                    new WhiteListAddressPriceList()
+                    new ListDuration()
                 );
                 listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                     .ShouldBe(TransactionResultStatus.Mined);
@@ -4171,8 +4079,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 purchaseSymbol,
                 new ListDuration(),
-                earnestMoney,
-                new WhiteListAddressPriceList()
+                earnestMoney
             );
             listWithEnglishAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);
@@ -4185,8 +4092,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 startingPrice,
                 endingPrice,
                 purchaseSymbol,
-                new ListDuration(),
-                new WhiteListAddressPriceList()
+                new ListDuration()
             );
             listWithDutchAuctionResult.Status.ConvertTransactionResultStatus()
                 .ShouldBe(TransactionResultStatus.NodeValidationFailed);

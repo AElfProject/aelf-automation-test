@@ -102,7 +102,7 @@ namespace AElfChain.Common.Contracts
 
         public TransactionResultDto ListWithEnglishAuction(string symbol, long tokenId, long startingPrice,
             string purchaseSymbol,
-            ListDuration duration, long earnestMoney, WhiteListAddressPriceList whiteListAddressPriceList)
+            ListDuration duration, long earnestMoney)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.ListWithEnglishAuction,
                 new ListWithEnglishAuctionInput
@@ -112,14 +112,13 @@ namespace AElfChain.Common.Contracts
                     StartingPrice = startingPrice,
                     PurchaseSymbol = purchaseSymbol,
                     Duration = duration,
-                    EarnestMoney = earnestMoney,
-                    WhiteListAddressPriceList = whiteListAddressPriceList
+                    EarnestMoney = earnestMoney
                 });
         }
 
         public TransactionResultDto ListWithDutchAuction(string symbol, long tokenId, long startingPrice,
             long endingPrice, string purchaseSymbol,
-            ListDuration duration, WhiteListAddressPriceList whiteListAddressPriceList)
+            ListDuration duration)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.ListWithDutchAuction, new ListWithDutchAuctionInput
             {
@@ -128,8 +127,7 @@ namespace AElfChain.Common.Contracts
                 StartingPrice = startingPrice,
                 EndingPrice = endingPrice,
                 PurchaseSymbol = purchaseSymbol,
-                Duration = duration,
-                WhiteListAddressPriceList = whiteListAddressPriceList
+                Duration = duration
             });
         }
 
@@ -170,7 +168,8 @@ namespace AElfChain.Common.Contracts
             });
         }
 
-        public TransactionResultDto CancelOffer(string symbol, long tokenId, Int32List indexList, string offerFrom, bool isCancelBid)
+        public TransactionResultDto CancelOffer(string symbol, long tokenId, Int32List indexList, string offerFrom,
+            bool isCancelBid)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.CancelOffer, new CancelOfferInput
             {
@@ -244,7 +243,7 @@ namespace AElfChain.Common.Contracts
                 IsConfirm = isConfirm
             });
         }
-        
+
         public TransactionResultDto ClaimRemainDeposit(string symbol, long tokenId)
         {
             return ExecuteMethodWithResult(NFTMarketContractMethod.ClaimRemainDeposit, new ClaimRemainDepositInput
