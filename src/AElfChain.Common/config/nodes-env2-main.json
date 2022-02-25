@@ -3,47 +3,65 @@
     "Nodes": [
         {
             "name": "bp1",
-            "endpoint": "192.168.66.9:8000",
-            "account": "J6zgLjGwd1bxTBpULLXrGVeV74tnS2n74FFJJz7KNdjTYkDF6",
-            "password": "12345678"
+            "endpoint": "192.168.197.21:8000",
+            "account": "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK",
+            "password": "123"
         },
         {
             "name": "bp2",
-            "endpoint": "192.168.66.85:8000",
-            "account": "2oKcAgFCi2FxwyQFzCVnmNYdKZzJLyA983gEwUmyuuaVUX2d1P",
-            "password": "12345678"
+            "endpoint": "192.168.197.53:8000",
+            "account": "2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2",
+            "password": "123"
         },
         {
             "name": "bp3",
-            "endpoint": "192.168.67.113:8000",
-            "account": "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg",
-            "password": "12345678"
+            "endpoint": "192.168.197.44:8000",
+            "account": "2oSMWm1tjRqVdfmrdL8dgrRvhWu1FP8wcZidjS6wPbuoVtxhEz",
+            "password": "123"
         },
         {
             "name": "bp4",
-            "endpoint": "192.168.67.112:8000",
-            "account": "2wHUPreWWSTrXy6LW9L4o6psJ37MVzJu7CvnJmZbWdDY6E7VYg",
-            "password": "12345678"
-        },
-        {
-            "name": "bp5",
-            "endpoint": "192.168.66.20:8000",
-            "account": "2bs2uYMECtHWjB57RqgqQ3X2LrxgptWHtzCqGEU11y45aWimh4",
-            "password": "12345678"
+            "endpoint": "192.168.197.45:8000",
+            "account": "WRy3ADLZ4bEQTn86ENi5GXi5J1YyHp9e99pPso84v2NJkfn5k",
+            "password": "123"
         },
         {
             "name": "full1",
-            "endpoint": "192.168.66.194:8000",
-            "account": "2X9u7M3YWNUNXqbsTvCsbHkS2ncrTVsiCKsUtf8YRr3DZCQLb6",
-            "password": "12345678"
+            "endpoint": "192.168.197.54:8000",
+            "account": "2ZYyxEH6j8zAyJjef6Spa99Jx2zf5GbFktyAQEBPWLCvuSAn8D",
+            "password": "123"
         },
         {
             "name": "full2",
-            "endpoint": "192.168.66.139:8000",
-            "account": "tb4qsxbzi4HLwSS4PM19yF89ww4nA1ELJXHP1mXB4ZPnNjCYc",
-            "password": "12345678"
+            "endpoint": "192.168.197.12:8000",
+            "account": "eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ",
+            "password": "123"
+        },
+        {
+            "name": "full3",
+            "endpoint": "192.168.197.13:8000",
+            "account": "2V2UjHQGH8WT4TWnzebxnzo9uVboo67ZFbLjzJNTLrervAxnws",
+            "password": "123"
+        },
+        {
+            "name": "full4",
+            "endpoint": "192.168.197.47:8000",
+            "account": "EKRtNn3WGvFSTDewFH81S7TisUzs9wPyP4gCwTww32waYWtLB",
+            "password": "123"
+        },
+        {
+            "name": "full5",
+            "endpoint": "192.168.197.50:8000",
+            "account": "2LA8PSHTw4uub71jmS52WjydrMez4fGvDmBriWuDmNpZquwkNx",
+            "password": "123"
+        },
+        {
+            "name": "full6",
+            "endpoint": "192.168.197.25:8000",
+            "account": "2RCLmZQ2291xDwSbDEJR6nLhFJcMkyfrVTq1i1YxWC4SdY49a6",
+            "password": "123"
         }
     ],
     "NativeTokenSymbol" : "ELF",
-    "DefaultPassword": "12345678"
+    "DefaultPassword": "123"
 }
