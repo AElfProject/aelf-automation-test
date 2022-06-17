@@ -35,15 +35,15 @@ service ProfitContract {
     rpc RemoveBeneficiaries (RemoveBeneficiariesInput) returns (google.protobuf.Empty) {
     }
 
+    rpc FixProfitDetail (FixProfitDetailInput) returns (google.protobuf.Empty) {
+    }
+
     // Contribute profit to a scheme.
     rpc ContributeProfits (ContributeProfitsInput) returns (google.protobuf.Empty) {
     }
 
     // The beneficiary draws tokens from the scheme.
     rpc ClaimProfits (ClaimProfitsInput) returns (google.protobuf.Empty) {
-    }
-
-    rpc ClaimProfitsByPeriod (ClaimProfitsByPeriodInput) returns (google.protobuf.Empty) {
     }
 
     // Distribute profits to schemes, including its sub scheme according to period and  token symbol, 
@@ -155,7 +155,18 @@ message AddBeneficiaryInput {
     // The beneficiary information.
     BeneficiaryShare beneficiary_share = 2;
     // The end period which the beneficiary receives the profit.
-    int64 end_period = 3;
+    int64 start_period = 3;
+    int64 end_period = 4;
+    bool is_fix_profit_detail = 5;
+    aelf.Hash profit_detail_id = 6;
+}
+
+message FixProfitDetailInput {
+    aelf.Hash scheme_id = 1;
+    BeneficiaryShare beneficiary_share = 2;
+    int64 start_period = 3;
+    int64 end_period = 4;
+    aelf.Hash profit_detail_id = 5;
 }
 
 message RemoveBeneficiaryInput {
@@ -163,6 +174,7 @@ message RemoveBeneficiaryInput {
     aelf.Address beneficiary = 1;
     // The scheme id.
     aelf.Hash scheme_id = 2;
+    aelf.Hash profit_detail_id = 3;
 }
 
 message AddBeneficiariesInput {
@@ -195,15 +207,6 @@ message ClaimProfitsInput {
     aelf.Address beneficiary = 2;
 }
 
-message ClaimProfitsByPeriodInput {
-    // The scheme id.
-    aelf.Hash scheme_id = 1;
-    // The address of beneficiary.
-    aelf.Address beneficiary = 2;
-    // Target period number.
-    int64 period = 3;
-}
-
 message DistributeProfitsInput {
     // The scheme id to distribute.
     aelf.Hash scheme_id = 1;
@@ -227,8 +230,9 @@ message ProfitDetail {
     int64 shares = 3;
     // The last period number that the beneficiary received the profit.
     int64 last_profit_period = 4;
-    // Whether the weight  has been removed.
+    // Whether the weight has been removed.
     bool is_weight_removed = 5;
+    aelf.Hash id = 6;
 }
 
 message ContributeProfitsInput {
@@ -312,6 +316,10 @@ message ReceivedProfitsMap {
     map<string, int64> value = 1;
 }
 
+message ReceivedProfitsMapList {
+    repeated ReceivedProfitsMap value = 1;
+}
+
 message SchemeCreated {
     option (aelf.is_event) = true;
     // The virtual address of the created scheme.
@@ -340,4 +348,23 @@ message ProfitsClaimed {
     int64 claimer_shares = 5;
     // The total shares at the current period.
     int64 total_shares = 6;
+}
+
+message ProfitDetailAdded {
+    option (aelf.is_event) = true;
+    int64 start_period = 1;
+    int64 end_period = 2;
+    int64 shares = 3;
+    bool is_weight_removed = 4;
+    aelf.Address beneficiary = 5;
+}
+
+message DistributedPeriodInfoChanged {
+    option (aelf.is_event) = true;
+    aelf.Hash scheme_id = 1;
+    int64 period = 2;
+    int64 total_shares = 3;
+    ReceivedProfitsMapList profits_map_list = 4;
+    bool is_released = 5;
+    aelf.Address virtual_address = 6;
 }

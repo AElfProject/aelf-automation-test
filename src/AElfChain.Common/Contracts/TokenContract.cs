@@ -1,6 +1,7 @@
 ﻿using System;
 using AElf.Client.Dto;
 using AElf.Contracts.MultiToken;
+using AElf.Kernel;
 using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
@@ -53,7 +54,8 @@ namespace AElfChain.Common.Contracts
         GetMethodFee,
         GetOwningRental,
         GetLockedAmount,
-        GetMethodFeeController
+        GetMethodFeeController,
+        GetVirtualAddressForLocking
     }
 
     public class TokenContract : BaseContract<TokenMethod>
@@ -73,8 +75,9 @@ namespace AElfChain.Common.Contracts
 
         public TransactionResultDto TransferBalance(string from, string to, long amount, string symbol = "")
         {
-            var tester = GetNewTester(from);
-            var result = tester.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+            // var tester = GetNewTester(from);
+            SetAccount(from);
+            var result = ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
                 Symbol = NodeOption.GetTokenSymbol(symbol),
                 To = to.ConvertAddress(),
@@ -170,6 +173,16 @@ namespace AElfChain.Common.Contracts
         public OwningRental GetOwningRental()
         {
             return CallViewMethod<OwningRental>(TokenMethod.GetOwningRental, new Empty());
+        }
+
+        public Address GetVirtualAddressForLocking(Address address, Hash lockId)
+        {
+            return CallViewMethod<Address>(TokenMethod.GetVirtualAddressForLocking,
+                new GetVirtualAddressForLockingInput
+                {
+                    Address = address,
+                    LockId = lockId
+                });
         }
     }
 }

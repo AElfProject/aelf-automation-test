@@ -21,7 +21,7 @@ namespace AElf.Automation.EconomicSystemTest
         protected static string RpcUrl { get; } = "http://192.168.66.9:8000";
         protected INodeManager NodeManager { get; set; }
         protected AuthorityManager AuthorityManager { get; set; }
-        protected string InitAccount { get; } = "28Y8JA1i2cN6oHvdv7EraXJr9a1gY6D1PpJXw9QtRMRwKcBQMK";
+        protected string InitAccount { get; } = "J6zgLjGwd1bxTBpULLXrGVeV74tnS2n74FFJJz7KNdjTYkDF6";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> FullNodeAddress { get; set; }
         protected List<string> ReplaceAddress { get; set; }
@@ -52,13 +52,21 @@ namespace AElf.Automation.EconomicSystemTest
              BpNodeAddress.Add("2bs2uYMECtHWjB57RqgqQ3X2LrxgptWHtzCqGEU11y45aWimh4");
 
             FullNodeAddress = new List<string>();
-            FullNodeAddress.Add("2frDVeV6VxUozNqcFbgoxruyqCRAuSyXyfCaov6bYWc7Gkxkh2");
+            FullNodeAddress.Add("2X9u7M3YWNUNXqbsTvCsbHkS2ncrTVsiCKsUtf8YRr3DZCQLb6");
+            FullNodeAddress.Add("tb4qsxbzi4HLwSS4PM19yF89ww4nA1ELJXHP1mXB4ZPnNjCYc");
+
 
             ReplaceAddress = new List<string>();
             ReplaceAddress.Add("2NKnGrarMPTXFNMRDiYH4hqfSoZw72NLxZHzgHD1Q3xmNoqdmR");
             Voter = new List<string>();
             Voter.Add("2gfVsyYbLPehmVjZxKHZfxp9AMRUEV6KFHkZDgdU7VZf64teew");
             Voter.Add("2a6MGBRVLPsy6pu4SVMWdQqHS5wvmkZv8oas9srGWHJk7GSJPV");
+            Voter.Add("ZczfBVksn1RhvfDXWVR7w5oagutgACiNzhwMdvVapEzcimWYz");
+            Voter.Add("W4xEKTZcvPKXRAmdu9xEpM69ArF7gUxDh9MDgtsKnu7JfePXo");
+            Voter.Add("NUddzDNy8PBMUgPCAcFW7jkaGmofDTEmr5DUoddXDpdR6E85X");
+            Voter.Add("aFm1FWZRLt7V6wCBUGVmqxaDcJGv9HvYPDUVxF95C9L7sTwXp");
+            Voter.Add("UZd2HWnZKkECcxh9fJYVKHowVtaE4xMi84UZdZYns9zchvKgR");
+
 
             Logger.Info($"{NodeManager.ApiClient.BaseUrl}");
 

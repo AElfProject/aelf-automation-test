@@ -152,5 +152,16 @@ namespace AElfChain.Common.Contracts
 
             return result;
         }
+
+        public DistributedProfitsInfo GetDistributedProfitsInfo(long period, Hash schemeId)
+        {
+            var result = CallViewMethod<DistributedProfitsInfo>(ProfitMethod.GetDistributedProfitsInfo, new SchemePeriod
+            {
+                SchemeId = schemeId,
+                Period = period
+            });
+
+            return result;
+        }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using AElf;
+using AElf.Types;
 
 namespace AElfChain.Common.Helpers
 {
@@ -128,5 +131,22 @@ namespace AElfChain.Common.Helpers
             if (cursorPosition != 0)
                 Console.WriteLine();
         }
+
+        public static Address GetVirtualAddress(Address contractAddress, Address userAddress, Address tokenAddress, Hash id)
+        {
+            var fromVirtualAddress = HashHelper.ComputeFrom(contractAddress.Value.Concat(userAddress.Value)
+                .Concat(id.Value).ToArray());
+            var virtualAddress = Address.FromPublicKey(tokenAddress.Value.Concat(
+                fromVirtualAddress.Value.ToByteArray().ComputeHash()).ToArray());
+            return virtualAddress;
+        }
+
+        public static Address GeneratePeriodVirtualAddressFromHash(Hash schemeId, long period)
+        {
+            var id = HashHelper.XorAndCompute(schemeId, HashHelper.ComputeFrom(period));
+            var virtualAddress = Address.FromPublicKey(id.Value.ToByteArray().ToArray());
+            return virtualAddress;
+        }
+        
     }
 }

@@ -24,11 +24,11 @@ service TokenContractImpl {
     option (aelf.base) = "acs1.proto";
     option (aelf.base) = "acs2.proto";
     option (aelf.base) = "token_contract.proto";
-    
+
     // Transfer resource tokens to designated contract address.
     rpc AdvanceResourceToken (AdvanceResourceTokenInput) returns (google.protobuf.Empty) {
     }
-    
+
     // Take token from contract address.
     rpc TakeResourceTokenBack (TakeResourceTokenBackInput) returns (google.protobuf.Empty) {
     }
@@ -36,15 +36,15 @@ service TokenContractImpl {
     // Register the token contract address for cross chain.
     rpc RegisterCrossChainTokenContractAddress (RegisterCrossChainTokenContractAddressInput) returns (google.protobuf.Empty) {
     }
-    
+
     // Set the receiver address of the side chain transaction fee.
     rpc SetFeeReceiver (aelf.Address) returns (google.protobuf.Empty) {
     }
-    
+
     // Validates if the token exist.
     rpc ValidateTokenInfoExists(ValidateTokenInfoExistsInput) returns (google.protobuf.Empty){
     }
-    
+
     // Update the rental unit price of the side chain.
     rpc UpdateRental (UpdateRentalInput) returns (google.protobuf.Empty) {
     }
@@ -56,23 +56,23 @@ service TokenContractImpl {
     // Transfer Token to the specified contract.
     rpc TransferToContract (TransferToContractInput) returns (google.protobuf.Empty) {
     }
-    
+
     // Change the governance organization of side chain rental.
     rpc ChangeSideChainRentalController (AuthorityInfo) returns (google.protobuf.Empty) {
     }
-    
+
     // Change the governance organization for tokens to pay transaction fees.
     rpc ChangeSymbolsToPayTXSizeFeeController(AuthorityInfo) returns (google.protobuf.Empty){
     }
-    
+
     // Change the governance organization for cross-chain token contract address registration.
     rpc ChangeCrossChainTokenContractRegistrationController (AuthorityInfo) returns (google.protobuf.Empty) {
     }
-    
+
     // Change the governance organization of the coefficient of the user transaction fee calculation formula.
     rpc ChangeUserFeeController (AuthorityInfo) returns (google.protobuf.Empty) {
     }
-    
+
     // Change the governance organization of the coefficient of the developer's transaction resource fee calculation formula.
     rpc ChangeDeveloperController (AuthorityInfo) returns (google.protobuf.Empty) {
     }
@@ -81,48 +81,48 @@ service TokenContractImpl {
     rpc GetFeeReceiver (google.protobuf.Empty) returns (aelf.Address){
         option (aelf.is_view) = true;
     }
-    
+
     // Query the amount of resources usage currently.
     rpc GetResourceUsage (google.protobuf.Empty) returns (ResourceUsage) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query the governance organization for tokens to pay transaction fees.
     rpc GetSymbolsToPayTXSizeFeeController(google.protobuf.Empty) returns (AuthorityInfo){
         option (aelf.is_view) = true;
     }
-    
+
     // Query the governance organization of the 
     rpc GetCrossChainTokenContractRegistrationController (google.protobuf.Empty) returns (AuthorityInfo) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query the governance organization that calculates the formula coefficient 
     // for the transaction cost the user sends the contract.
     rpc GetUserFeeController(google.protobuf.Empty) returns (UserFeeController){
         option (aelf.is_view) = true;
     }
-    
+
     // Query the governing organization of the formula coefficients for calculating developer contract transaction fee.
     rpc GetDeveloperFeeController (google.protobuf.Empty) returns (DeveloperFeeController) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query the organization that governs the side chain rental fee.
     rpc GetSideChainRentalControllerCreateInfo (google.protobuf.Empty) returns (AuthorityInfo) {
         option (aelf.is_view) = true;
     }
-    
+
     // Compute the virtual address for locking.
     rpc GetVirtualAddressForLocking (GetVirtualAddressForLockingInput) returns (aelf.Address) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query how much resource tokens should be paid currently.
     rpc GetOwningRental (google.protobuf.Empty) returns (OwningRental) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query the unit price of the side chain resource cost, resource cost = unit price * quantity, 
     // the quantity can be queried through GetResourceUsage.
     rpc GetOwningRentalUnitValue (google.protobuf.Empty) returns (OwningRentalUnitValue) {
@@ -176,6 +176,8 @@ message ValidateTokenInfoExistsInput{
     bool is_burnable = 6;
     // The chain id of the token.
     int32 issue_chain_id = 7;
+    // The external information of the token.
+    map<string, string> external_info = 8;
 }
 
 message UpdateRentalInput {
