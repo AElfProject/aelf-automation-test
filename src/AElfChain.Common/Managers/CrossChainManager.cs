@@ -15,6 +15,7 @@ using Google.Protobuf;
 using log4net;
 using Shouldly;
 using Volo.Abp.Threading;
+using TokenContract = AElfChain.Common.Contracts.TokenContract;
 
 namespace AElfChain.Common.Managers
 {

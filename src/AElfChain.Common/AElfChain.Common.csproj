@@ -4,7 +4,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>latest</LangVersion>
         <NoWarn>0436</NoWarn>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -70,15 +70,15 @@
 
     <ItemGroup>
         <!--AElf packages-->
-        <PackageReference Include="AElf.Kernel.Types" Version="1.0.0" />
-        <PackageReference Include="AElf.Types" Version="1.0.0" />
-        <PackageReference Include="AElf.CSharp.Core" Version="1.0.0" />
-        <PackageReference Include="AElf.Cryptography" Version="1.0.0" />
+        <PackageReference Include="AElf.Kernel.Types" Version="1.2.0" />
+        <PackageReference Include="AElf.Types" Version="1.2.0" />
+        <PackageReference Include="AElf.CSharp.Core" Version="1.2.0" />
+        <PackageReference Include="AElf.Cryptography" Version="1.2.0" />
         <PackageReference Include="AElf.Client" Version="1.1.0" />
         <!--end packages-->
 
         <PackageReference Include="Volo.Abp.Core" Version="2.3.0" />
-        <PackageReference Include="Nethereum.KeyStore" Version="3.7.1" />
+        <PackageReference Include="Nethereum.KeyStore" Version="4.6.1" />
         <PackageReference Include="Mono.Cecil" Version="0.11.0" />
         <PackageReference Include="apache.log4net.Extensions.Logging" Version="2.0.0.12" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
@@ -93,6 +93,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AElfChain.Contract\AElfChain.Contract.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Protobuf\Generated" />
     </ItemGroup>
 
 </Project>

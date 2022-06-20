@@ -3,12 +3,12 @@
     <PropertyGroup>
         <AssemblyName>AElf.Automation.EconomicSystemTest</AssemblyName>
         <RootNamespace>AElf.Automation.EconomicSystemTest</RootNamespace>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="AElf.Client" Version="1.1.0" />
-        <PackageReference Include="AElf.Types" Version="1.0.0" />
+        <PackageReference Include="AElf.Types" Version="1.2.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
         <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
         <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />

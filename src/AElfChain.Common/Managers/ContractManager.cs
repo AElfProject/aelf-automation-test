@@ -24,6 +24,7 @@ using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using log4net;
+using TokenContract = AElfChain.Common.Contracts.TokenContract;
 
 namespace AElfChain.Common.Managers
 {

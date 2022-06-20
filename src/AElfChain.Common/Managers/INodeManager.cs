@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AElf.Client.Service;
 using AElf.Client.Dto;
 using AElf.Client.Service;
 using Google.Protobuf;

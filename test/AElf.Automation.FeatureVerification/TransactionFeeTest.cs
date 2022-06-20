@@ -22,7 +22,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shouldly;
 using Volo.Abp.Threading;
-using TokenInfo = AElf.Contracts.MultiToken.TokenInfo;
+using TokenContract = AElfChain.Common.Contracts.TokenContract;
+using TokenInfo = AElf.Contracts.TestContract.TransactionFees.TokenInfo;
 
 namespace AElf.Automation.Contracts.ScenarioTest
 {
