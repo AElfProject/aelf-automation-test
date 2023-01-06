@@ -300,5 +300,24 @@ namespace AElfChain.Common.Managers
                 AsyncHelper.RunSync(() => Task.Delay(10000));
             }
         }
+        
+        public TransactionResultDto CrossChainCreate(TransactionResultDto result, string rawTx)
+        {
+
+            var fromChainId = ChainHelper.ConvertBase58ToChainId(FromNoeNodeManager.GetChainId());
+            var merklePath = GetMerklePath(FromNoeNodeManager, result.TransactionId);
+            var crossChainCrossToken = new CrossChainCreateTokenInput
+            {
+                FromChainId = fromChainId,
+                MerklePath = merklePath,
+                TransactionBytes = ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx)),
+                ParentChainHeight = result.BlockNumber
+            };
+            CheckSideChainIndexMainChain(result.BlockNumber);
+
+            var createResult =
+                _toChainToken.ExecuteMethodWithResult(TokenMethod.CrossChainCreateToken, crossChainCrossToken);
+            return createResult;
+        }
     }
 }
