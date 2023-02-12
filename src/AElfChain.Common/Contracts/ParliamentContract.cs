@@ -60,12 +60,13 @@ namespace AElfChain.Common.Contracts
             string caller = null)
         {
             var tester = GetTestStub<ParliamentContractImplContainer.ParliamentContractImplStub>(caller);
+            var expiredTime = KernelHelper.GetUtcNow().AddDays(60);
             var createProposalInput = new CreateProposalInput
             {
                 ContractMethodName = method,
                 ToAddress = contractAddress.ConvertAddress(),
                 Params = input.ToByteString(),
-                ExpiredTime = KernelHelper.GetUtcNow().AddMinutes(10),
+                ExpiredTime = expiredTime,
                 OrganizationAddress = organizationAddress
             };
             var proposal = AsyncHelper.RunSync(() => tester.CreateProposal.SendAsync(createProposalInput));

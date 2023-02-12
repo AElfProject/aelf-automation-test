@@ -18,10 +18,10 @@ namespace AElf.Automation.EconomicSystemTest
         protected static readonly ILog Logger = Log4NetHelper.GetLogger();
 
         protected Behaviors Behaviors;
-        protected static string RpcUrl { get; } = "http://192.168.66.9:8000";
+        protected static string RpcUrl { get; } = "http://127.0.0.1:8001";
         protected INodeManager NodeManager { get; set; }
         protected AuthorityManager AuthorityManager { get; set; }
-        protected string InitAccount { get; } = "J6zgLjGwd1bxTBpULLXrGVeV74tnS2n74FFJJz7KNdjTYkDF6";
+        protected string InitAccount { get; } = "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg";
         protected List<string> BpNodeAddress { get; set; }
         protected List<string> FullNodeAddress { get; set; }
         protected List<string> ReplaceAddress { get; set; }
@@ -54,8 +54,7 @@ namespace AElf.Automation.EconomicSystemTest
             FullNodeAddress = new List<string>();
             FullNodeAddress.Add("2X9u7M3YWNUNXqbsTvCsbHkS2ncrTVsiCKsUtf8YRr3DZCQLb6");
             FullNodeAddress.Add("tb4qsxbzi4HLwSS4PM19yF89ww4nA1ELJXHP1mXB4ZPnNjCYc");
-
-
+            
             ReplaceAddress = new List<string>();
             ReplaceAddress.Add("2NKnGrarMPTXFNMRDiYH4hqfSoZw72NLxZHzgHD1Q3xmNoqdmR");
             Voter = new List<string>();
@@ -66,10 +65,8 @@ namespace AElf.Automation.EconomicSystemTest
             Voter.Add("NUddzDNy8PBMUgPCAcFW7jkaGmofDTEmr5DUoddXDpdR6E85X");
             Voter.Add("aFm1FWZRLt7V6wCBUGVmqxaDcJGv9HvYPDUVxF95C9L7sTwXp");
             Voter.Add("UZd2HWnZKkECcxh9fJYVKHowVtaE4xMi84UZdZYns9zchvKgR");
-
-
+            
             Logger.Info($"{NodeManager.ApiClient.BaseUrl}");
-
             #endregion
         }
     }

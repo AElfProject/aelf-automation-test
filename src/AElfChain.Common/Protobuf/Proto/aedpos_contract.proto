@@ -15,17 +15,17 @@ import "google/protobuf/wrappers.proto";
 option csharp_namespace = "AElf.Contracts.Consensus.AEDPoS";
 
 service AEDPoSContract {
-    
+
     option (aelf.csharp_state) = "AElf.Contracts.Consensus.AEDPoS.AEDPoSContractState";
-    
+
     // Initialize the consensus contract. 
     rpc InitialAElfConsensusContract (InitialAElfConsensusContractInput) returns (google.protobuf.Empty) {
     }
-    
+
     // Initializes the consensus information in the first round.
     rpc FirstRound (Round) returns (google.protobuf.Empty) {
     }
-    
+
     // Update consensus information.
     rpc UpdateValue (UpdateValueInput) returns (google.protobuf.Empty) {
     }
@@ -41,16 +41,20 @@ service AEDPoSContract {
     // Update consensus tiny block information.
     rpc UpdateTinyBlockInformation (TinyBlockInput) returns (google.protobuf.Empty) {
     }
-    
+
     // Set the maximum count of miners, by default, is unlimited. 
     // If you want to control the count of miners, you need to set it through parliament.
     rpc SetMaximumMinersCount (google.protobuf.Int32Value) returns (google.protobuf.Empty) {
     }
-    
+
     // The authority information for SetMaximumMinersCount, by default, is governed by parliament.
     rpc ChangeMaximumMinersCountController (AuthorityInfo) returns (google.protobuf.Empty) {
     }
-    
+
+    // Set miner increase interval
+    rpc SetMinerIncreaseInterval (google.protobuf.Int64Value) returns (google.protobuf.Empty){
+    }
+
     // Election Contract can notify AEDPoS Contract to aware candidate replacement happened.
     rpc RecordCandidateReplacement (RecordCandidateReplacementInput) returns (google.protobuf.Empty) {
     }
@@ -59,87 +63,87 @@ service AEDPoSContract {
     rpc GetCurrentMinerList (google.protobuf.Empty) returns (MinerList) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the list of current miners (hexadecimal format).
     rpc GetCurrentMinerPubkeyList (google.protobuf.Empty) returns (PubkeyList) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the list of current miners and current round number.
     rpc GetCurrentMinerListWithRoundNumber (google.protobuf.Empty) returns (MinerListWithRoundNumber) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get information of the round according to round number.
     rpc GetRoundInformation (google.protobuf.Int64Value) returns (Round) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the current round number.
     rpc GetCurrentRoundNumber (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the current round information.
     rpc GetCurrentRoundInformation (google.protobuf.Empty) returns (Round) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the previous round information.
     rpc GetPreviousRoundInformation (google.protobuf.Empty) returns (Round) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the current term number.
     rpc GetCurrentTermNumber (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the welfare reward the current term.
     rpc GetCurrentTermMiningReward (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the list of miners according to term number.
     rpc GetMinerList (GetMinerListInput) returns (MinerList) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the list of miner in previous term.
     rpc GetPreviousMinerList (google.protobuf.Empty) returns (MinerList) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the amount of mined blocks in previous term.
     rpc GetMinedBlocksOfPreviousTerm (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the miner that produces the next block.
     rpc GetNextMinerPubkey (google.protobuf.Empty) returns (google.protobuf.StringValue) {
         option (aelf.is_view) = true;
     }
-    
+
     // Check to see if the account address is on the miner list for the current round.
     rpc IsCurrentMiner (aelf.Address) returns (google.protobuf.BoolValue) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query the left time before the next election takes effects (seconds).
     rpc GetNextElectCountDown (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get term information according term number.
     rpc GetPreviousTermInformation (google.protobuf.Int64Value) returns (Round) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get random hash (Keep this for compatibility).
     rpc GetRandomHash (google.protobuf.Int64Value) returns (aelf.Hash) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the maximum of tiny blocks produced by a miner each round.
     rpc GetMaximumBlocksCount (google.protobuf.Empty) returns (google.protobuf.Int32Value) {
         option (aelf.is_view) = true;
@@ -149,22 +153,27 @@ service AEDPoSContract {
     rpc GetMaximumMinersCount (google.protobuf.Empty) returns (google.protobuf.Int32Value) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the authority information for SetMaximumMinersCount.
     rpc GetMaximumMinersCountController (google.protobuf.Empty) returns (AuthorityInfo) {
         option (aelf.is_view) = true;
     }
-    
+
+    // Get miner increase interval
+    rpc GetMinerIncreaseInterval (google.protobuf.Empty) returns (google.protobuf.Int64Value){
+        option (aelf.is_view) = true;
+    }
+
     // Gets the list of miners in the main chain.
     rpc GetMainChainCurrentMinerList (google.protobuf.Empty) returns (MinerList) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the list of miners in the previous term.
     rpc GetPreviousTermMinerPubkeyList (google.protobuf.Empty) returns (PubkeyList) {
         option (aelf.is_view) = true;
     }
-    
+
     // Query the current mining reward for each block.
     rpc GetCurrentMiningRewardPerBlock (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;

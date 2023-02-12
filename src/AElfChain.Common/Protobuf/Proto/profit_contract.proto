@@ -18,7 +18,7 @@ service ProfitContract {
     // Create a scheme for profit distribution, and return the created scheme id.
     rpc CreateScheme (CreateSchemeInput) returns (aelf.Hash) {
     }
-
+    
     // Add beneficiary to scheme.
     rpc AddBeneficiary (AddBeneficiaryInput) returns (google.protobuf.Empty) {
     }
@@ -26,7 +26,7 @@ service ProfitContract {
     // Remove beneficiary from scheme.
     rpc RemoveBeneficiary (RemoveBeneficiaryInput) returns (google.protobuf.Empty) {
     }
-
+    
     // Batch add beneficiary to scheme.
     rpc AddBeneficiaries (AddBeneficiariesInput) returns (google.protobuf.Empty) {
     }
@@ -41,7 +41,7 @@ service ProfitContract {
     // Contribute profit to a scheme.
     rpc ContributeProfits (ContributeProfitsInput) returns (google.protobuf.Empty) {
     }
-
+    
     // The beneficiary draws tokens from the scheme.
     rpc ClaimProfits (ClaimProfitsInput) returns (google.protobuf.Empty) {
     }
@@ -50,16 +50,16 @@ service ProfitContract {
     // should be called by the manager. 
     rpc DistributeProfits (DistributeProfitsInput) returns (google.protobuf.Empty) {
     }
-
+    
     // Add sub scheme to a scheme. 
     // This will effectively add the specified sub-scheme as a beneficiary of the parent scheme.
     rpc AddSubScheme (AddSubSchemeInput) returns (google.protobuf.Empty) {
     }
-
+    
     // Remove sub scheme from a scheme.
     rpc RemoveSubScheme (RemoveSubSchemeInput) returns (google.protobuf.Empty) {
     }
-
+    
     // Reset the manager of a scheme.
     rpc ResetManager (ResetManagerInput) returns (google.protobuf.Empty) {
     }
@@ -68,27 +68,27 @@ service ProfitContract {
     rpc GetManagingSchemeIds (GetManagingSchemeIdsInput) returns (CreatedSchemeIds) {
         option (aelf.is_view) = true;
     }
-
+    
     // Get scheme according to scheme id.
     rpc GetScheme (aelf.Hash) returns (Scheme) {
         option (aelf.is_view) = true;
     }
-
+    
     // Get the virtual address of the number of period of the scheme.
     rpc GetSchemeAddress (SchemePeriod) returns (aelf.Address) {
         option (aelf.is_view) = true;
     }
-
+    
     // Query the distributed profit information for the specified period.
     rpc GetDistributedProfitsInfo (SchemePeriod) returns (DistributedProfitsInfo) {
         option (aelf.is_view) = true;
     }
-
+    
     // Query the beneficiary's profit information on the scheme.
     rpc GetProfitDetails (GetProfitDetailsInput) returns (ProfitDetails) {
         option (aelf.is_view) = true;
     }
-
+    
     // Query the amount of profit according to token symbol. (up to 10 periods).
     rpc GetProfitAmount (GetProfitAmountInput) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
@@ -154,7 +154,6 @@ message AddBeneficiaryInput {
     aelf.Hash scheme_id = 1;
     // The beneficiary information.
     BeneficiaryShare beneficiary_share = 2;
-    // The end period which the beneficiary receives the profit.
     int64 start_period = 3;
     int64 end_period = 4;
     bool is_fix_profit_detail = 5;

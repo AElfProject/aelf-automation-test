@@ -55,7 +55,14 @@ namespace AElfChain.Common.Contracts
         GetOwningRental,
         GetLockedAmount,
         GetMethodFeeController,
-        GetVirtualAddressForLocking
+        GetVirtualAddressForLocking,
+        GetMethodFeeFreeAllowancesConfig,
+        GetMethodFeeFreeAllowances,
+
+        SetTransactionFeeDelegations,
+        GetTransactionFeeDelegationsOfADelegatee,
+        RemoveTransactionFeeDelegator,
+        RemoveTransactionFeeDelegatee
     }
 
     public class TokenContract : BaseContract<TokenMethod>
@@ -81,8 +88,7 @@ namespace AElfChain.Common.Contracts
             {
                 Symbol = NodeOption.GetTokenSymbol(symbol),
                 To = to.ConvertAddress(),
-                Amount = amount,
-                Memo = $"T-{Guid.NewGuid().ToString()}"
+                Amount = amount
             });
 
             return result;
@@ -182,6 +188,29 @@ namespace AElfChain.Common.Contracts
                 {
                     Address = address,
                     LockId = lockId
+                });
+        }
+
+        public MethodFeeFreeAllowancesConfig GetMethodFeeFreeAllowancesConfig()
+        {
+            return CallViewMethod<MethodFeeFreeAllowancesConfig>(TokenMethod.GetMethodFeeFreeAllowancesConfig,
+                new Empty());
+        }
+
+
+        public MethodFeeFreeAllowances GetMethodFeeFreeAllowances(string address)
+        {
+            return CallViewMethod<MethodFeeFreeAllowances>(TokenMethod.GetMethodFeeFreeAllowances,
+                address.ConvertAddress());
+        }
+
+        public TransactionFeeDelegations GetTransactionFeeDelegationsOfADelegatee(string delegator, string delegatee)
+        {
+            return CallViewMethod<TransactionFeeDelegations>(TokenMethod.GetTransactionFeeDelegationsOfADelegatee,
+                new GetTransactionFeeDelegationsOfADelegateeInput
+                {
+                    DelegatorAddress = delegator.ConvertAddress(),
+                    DelegateeAddress = delegatee.ConvertAddress()
                 });
         }
     }

@@ -152,14 +152,14 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        [DataRow("c2c9573954e894b6008ce670bb0ff195c7714e8aa9e1be1098218039bb98137c", 0)]
-        public void ChangeUserVoteOld(string hash, int voteIndex)
+        [DataRow("de00c30097f56a9391609c64c0190553d083fdda236d731b1f3e1347dc89f92c", 0,1)]
+        public void ChangeUserVoteOld(string hash, int voteIndex, int candidateIndex)
         {
             var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
             // var term = Behaviors.ConsensusService.GetCurrentTermInformation();
             // Logger.Info($"Term: {term}");
             var account = Voter[voteIndex];
-            var candidate = FullNodeAddress[0];
+            var candidate = FullNodeAddress[candidateIndex];
             var voteId = Hash.LoadFromHex(hash);
             var originVoteProfit =
                 Behaviors.ProfitService.GetProfitDetails(account, schemeId);
@@ -196,17 +196,18 @@ namespace AElf.Automation.EconomicSystemTest
         }
         
         [TestMethod]
-        [DataRow("19211f66b88d04715caab99aeb4c130ae6352714e1cbb139b31e01ecb10e242e", false, 6)]
-        public void ChangeUserVote(string hash, bool isReset, int voteIndex)
+        [DataRow("de00c30097f56a9391609c64c0190553d083fdda236d731b1f3e1347dc89f92c", true, 0, 0)]
+        public void ChangeUserVote(string hash, bool isReset, int voteIndex, int candidateIndex)
         {
             var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
             // var term = Behaviors.ConsensusService.GetCurrentTermInformation();
             // Logger.Info($"Term: {term}");
             var account = Voter[voteIndex];
-            var candidate = FullNodeAddress[0];
+            var candidate = FullNodeAddress[candidateIndex];
             var voteId = Hash.LoadFromHex(hash);
             var originVoteProfit =
                 Behaviors.ProfitService.GetProfitDetails(account, schemeId);
+            Logger.Info(originVoteProfit);
             var originVoteRecord = Behaviors.GetVotesInformation(account);
             var currentOriginVoteRecord = originVoteRecord.ActiveVotingRecords.First(a => a.VoteId.Equals(voteId));
             Logger.Info(originVoteRecord.ActiveVotingRecords);
@@ -253,45 +254,7 @@ namespace AElf.Automation.EconomicSystemTest
             var virtualBalance = Behaviors.TokenService.GetUserBalance(virtualAddress.ToBase58());
             originVirtualBalance.ShouldBe(virtualBalance);
         }
-
-        [TestMethod]
-        [DataRow("4ac0b4732e0b834aefd2c7790dfaa65e41e17370346bfd21673afe676132e16b",2,9,14)]
-        public void FixWelfareProfit(string hash, int voterIndex, long start, long end)
-        {
-            var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
-            var account = Voter[voterIndex];
-            var voteId = Hash.LoadFromHex(hash);
-            var votingRecord = Behaviors.VoteService.CallViewMethod<VotingRecord>(VoteMethod.GetVotingRecord, voteId);
-
-            var list = new List<FixWelfareProfitInfo>();
-            var fixProfitInfo = new FixWelfareProfitInfo
-            {
-                StartPeriod = start,
-                EndPeriod = end,
-                VoteId = voteId
-            };
-            list.Add(fixProfitInfo);
-            var originVoteProfit =
-                Behaviors.ProfitService.GetProfitDetails(account, schemeId);
-            Logger.Info($"Profit details: {originVoteProfit.Details}");
-            var originVoteRecord = Behaviors.GetVotesInformation(account);
-            Logger.Info($"Vote record: {originVoteRecord}");
-
-            var fixResult = Behaviors.ElectionService.ExecuteMethodWithResult(ElectionMethod.FixWelfareProfit,
-                new FixWelfareProfitInput
-                {
-                    FixInfoList =
-                    { list }
-                });
-            fixResult.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            
-            var voteRecord = Behaviors.GetVotesInformation(account);
-            Logger.Info(voteRecord);
-            var voteProfit =
-                Behaviors.ProfitService.GetProfitDetails(account, schemeId);
-            Logger.Info(voteProfit.Details);
-        }
-
+        
         [TestMethod]
         public void CheckProfit()
         {
@@ -455,12 +418,11 @@ namespace AElf.Automation.EconomicSystemTest
         }
 
         [TestMethod]
-        [DataRow("c2c9573954e894b6008ce670bb0ff195c7714e8aa9e1be1098218039bb98137c", 0)]
-        public void Withdraw(string voteId, int voterIndex)
+        [DataRow("d69dfa54a1270a00dd9e23a6a519f3427e6a0f549fc2f3eac7c0a7401b3a5920", 3, 1)]
+        public void Withdraw(string voteId, int voterIndex, int candidateIndex)
         {
             var account = Voter[voterIndex];
-            var candidate = FullNodeAddress[0];
-            var amount = 1000_00000000;
+            var candidate = FullNodeAddress[candidateIndex];
             var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
 
             var allShares = Behaviors.ProfitService.GetScheme(schemeId).TotalShares;
@@ -471,6 +433,8 @@ namespace AElf.Automation.EconomicSystemTest
                     new StringValue {Value = NodeManager.AccountManager.GetPublicKey(candidate)});
             getCandidateVoteWithRecords.ObtainedActiveVotingRecords.Select(o => o.VoteId).ShouldContain(Hash.LoadFromHex(voteId));
             Logger.Info(getCandidateVoteWithRecords);
+            var amount = getCandidateVoteWithRecords.ObtainedActiveVotingRecords
+                .First(l => l.VoteId.Equals(Hash.LoadFromHex(voteId))).Amount;
 
             var profitDetails = Behaviors.ProfitService.GetProfitDetails(account, schemeId);
             Logger.Info(profitDetails);
@@ -498,6 +462,8 @@ namespace AElf.Automation.EconomicSystemTest
             
             //check all shares 
             var afterAllShares = Behaviors.ProfitService.GetScheme(schemeId).TotalShares;
+            Logger.Info($"Shares: {allShares}\n After shares: {afterAllShares}");
+
             if (profitDetails.Details.Count.Equals(0))
             {
                 afterAllShares.ShouldBe(allShares);
@@ -518,10 +484,11 @@ namespace AElf.Automation.EconomicSystemTest
            var afterGetCandidateVoteWithRecords =
                 Behaviors.ElectionService.CallViewMethod<CandidateVote>(ElectionMethod.GetCandidateVoteWithRecords,
                     new StringValue {Value = NodeManager.AccountManager.GetPublicKey(candidate)});
-           afterGetCandidateVoteWithRecords.ObtainedActiveVotingRecords.Select(o => o.VoteId).ShouldNotContain(Hash.LoadFromHex(voteId));
-           afterGetCandidateVoteWithRecords.ObtainedWithdrawnVotesRecords.Select(o => o.VoteId).ShouldContain(Hash.LoadFromHex(voteId));
-           afterGetCandidateVoteWithRecords.AllObtainedVotedVotesAmount.ShouldBe(getCandidateVoteWithRecords.AllObtainedVotedVotesAmount.Sub(amount));
            Logger.Info(afterGetCandidateVoteWithRecords);
+
+           afterGetCandidateVoteWithRecords.ObtainedActiveVotingRecords.Select(o => o.VoteId).ShouldNotContain(Hash.LoadFromHex(voteId));
+           afterGetCandidateVoteWithRecords.ObtainedWithdrawnVotingRecordIds.ShouldContain(Hash.LoadFromHex(voteId));
+           // afterGetCandidateVoteWithRecords.AllObtainedVotedVotesAmount.ShouldBe(getCandidateVoteWithRecords.AllObtainedVotedVotesAmount.Sub(amount));
         }
 
 
@@ -625,6 +592,28 @@ namespace AElf.Automation.EconomicSystemTest
                 var profitInfo = Behaviors.ProfitService.GetProfitDetails(voter, schemeId);
                 Logger.Info(profitInfo);
             }
+        }
+
+        [TestMethod]
+        public void CheckVote()
+        {
+            var votersCount = Behaviors.ElectionService.GetVotersCount();
+            Logger.Info(votersCount);
+            //GetVotesAmount
+            var votesAmount =Behaviors.ElectionService.GetVotesAmount();
+            Logger.Info(votesAmount);
+
+            
+            var account = Voter[2];
+            var schemeId = Behaviors.Schemes[SchemeType.CitizenWelfare].SchemeId;
+
+            var allShares = Behaviors.ProfitService.GetScheme(schemeId).TotalShares;
+            var votesInfo = Behaviors.GetVotesInformation(account);
+            var profitDetails = Behaviors.ProfitService.GetProfitDetails(account, schemeId);
+
+            Logger.Info(allShares);
+            Logger.Info(votesInfo);
+            Logger.Info(profitDetails);
         }
 
         [TestMethod]

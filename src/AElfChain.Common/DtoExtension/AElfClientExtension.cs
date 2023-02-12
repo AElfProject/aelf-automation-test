@@ -1,4 +1,5 @@
 using AElf.Client.Service;
+using AElf.Client.Service;
 
 namespace AElfChain.Common.DtoExtension
 {
@@ -12,7 +13,7 @@ namespace AElfChain.Common.DtoExtension
         public static AElfClient GetClient(string baseUrl)
         {
             var endpoint = FormatServiceUrl(baseUrl);
-            return new AElfClient(endpoint);
+            return new AElfClient(endpoint, 60, "aelf", "12345678");
         }
 
         private static string FormatServiceUrl(string baseUrl)

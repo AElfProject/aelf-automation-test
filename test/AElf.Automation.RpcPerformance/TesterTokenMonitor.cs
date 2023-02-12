@@ -11,6 +11,7 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using log4net;
 using Shouldly;
+using TokenContract = AElfChain.Common.Contracts.TokenContract;
 
 namespace AElf.Automation.RpcPerformance
 {

@@ -14,5 +14,9 @@
     {
       "ListeningPort": "192.168.197.37:6800"
     }
-  ]
+  ],
+  "BasicAuth": {
+    "UserName": "",
+    "Password": ""
+  }
 }

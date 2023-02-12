@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
         <None Update="network.json">
@@ -21,7 +21,7 @@
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="AElf.Client" Version="1.1.0" />
-      <PackageReference Include="AElf.Types" Version="1.0.0" />
+      <PackageReference Include="AElf.Types" Version="1.2.3" />
     </ItemGroup>
 
 </Project>

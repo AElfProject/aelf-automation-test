@@ -82,7 +82,7 @@ namespace AElf.Automation.EconomicSystemTest
              var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.ChangeVotingOption, new ChangeVotingOptionInput
              {
                  CandidatePubkey = NodeManager.GetAccountPublicKey(candidate),
-                 VoteId = voteId,
+                 VoteId = voteId
              });
              vote.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
              var fee = vote.GetDefaultTransactionFee();

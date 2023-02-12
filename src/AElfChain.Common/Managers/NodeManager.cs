@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using AElf.Standards.ACS0;
 using AElf;
+using AElf.Client.Service;
 using AElf.Client.Dto;
 using AElf.Client.Service;
 using AElf.Types;
@@ -258,6 +259,13 @@ namespace AElfChain.Common.Managers
             return tr.ToByteArray().ToHex();
         }
 
+        public Transaction GenerateTransaction(string from, string to, string methodName, IMessage inputParameter)
+        {
+            var transaction = AsyncHelper.RunSync(() =>
+                ApiClient.GenerateTransactionAsync(from, to, methodName, inputParameter));
+            return transaction;
+        }
+
         public TransactionResultDto CheckTransactionResult(string txId, int maxSeconds = -1)
         {
             if (maxSeconds == -1) maxSeconds = 600; //check transaction result 10 minutes.
@@ -352,6 +360,7 @@ namespace AElfChain.Common.Managers
                     Logger.Info($"Check {id} again:");
                     transactionResult = AsyncHelper.RunSync(() => ApiClient.GetTransactionResultAsync(id));
                 }
+
                 var status = transactionResult.Status.ConvertTransactionResultStatus();
                 switch (status)
                 {
@@ -441,17 +450,17 @@ namespace AElfChain.Common.Managers
         //Net Api
         public List<PeerDto> NetGetPeers()
         {
-            return AsyncHelper.RunSync(() => ApiClient.GetPeersAsync(true));
+            return AsyncHelper.RunSync(() => ApiClient.GetPeersAsync(false));
         }
 
-        public bool NetAddPeer(string address)
+        public bool NetAddPeer(string address, string userName, string password)
         {
-            return AsyncHelper.RunSync(() => ApiClient.AddPeerAsync(address, "",""));
+            return AsyncHelper.RunSync(() => ApiClient.AddPeerAsync(address, userName, password));
         }
 
-        public bool NetRemovePeer(string address)
+        public bool NetRemovePeer(string address, string userName, string password)
         {
-            return AsyncHelper.RunSync(() => ApiClient.RemovePeerAsync(address, "",""));
+            return AsyncHelper.RunSync(() => ApiClient.RemovePeerAsync(address, userName, password));
         }
 
         public NetworkInfoOutput NetworkInfo()

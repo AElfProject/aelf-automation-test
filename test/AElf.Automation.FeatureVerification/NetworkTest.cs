@@ -23,6 +23,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private readonly string MainChainAddress1 = "http://192.168.67.47:8000";
         private readonly string MainChainAddress2 = "http://127.0.0.1:8001";
         private readonly HttpClient Client = new HttpClient();
+        private readonly string username = "";
+        private readonly string password = "";
         private INodeManager _ch1 { get; set; }
         private INodeManager _ch2 { get; set; }
 
@@ -36,7 +38,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             _ch1 = new NodeManager("http://127.0.0.1:8000");
             _ch2 = new NodeManager("http://127.0.0.1:8001");
-
         }
 
         [TestMethod]
@@ -44,57 +45,58 @@ namespace AElf.Automation.Contracts.ScenarioTest
         {
             GetPeer(_ch2);
         }
-        
+
         [TestMethod]
         public void TestRemovePeer()
         {
             RemovePeer(MainChainAddress2, _ch1);
-        
+
             GetPeer(_ch1);
             GetPeer(_ch2);
         }
-        
+
         [TestMethod]
         public void TestAddPeer()
         {
             AddPeer(MainChainAddress2, _ch1);
-        
+
             GetPeer(_ch1);
             GetPeer(_ch2);
         }
-        
-        
+
+
         public void GetPeer(INodeManager wa)
         {
             var peers = wa.NetGetPeers();
-        
+
             foreach (var res in peers) Logger.Info(res.IpAddress);
         }
-        
+
         [TestMethod]
         public async Task AddPeer()
         {
             var parameters = new Dictionary<string, string>
             {
-                { "address","127.0.0.1:6801"}
+                { "address", "127.0.0.1:6801" }
             };
-            var postString = await PostResponseAsStringAsync($"{MainChainAddress2}/api/net/peer", parameters, basicAuth: new BasicAuth
-            {
-                UserName = "full",
-                Password = "12345678"
-            });
+            var postString = await PostResponseAsStringAsync($"{MainChainAddress2}/api/net/peer", parameters,
+                basicAuth: new BasicAuth
+                {
+                    UserName = "full",
+                    Password = "12345678"
+                });
         }
 
 
         public void AddPeer(string address, INodeManager wa)
         {
-            var result = wa.NetAddPeer(address);
+            var result = wa.NetAddPeer(address, username, password);
             Assert.IsTrue(result, "Add peer request failed.");
         }
 
         public void RemovePeer(string address, INodeManager wa)
         {
-            var result = wa.NetRemovePeer(address);
+            var result = wa.NetRemovePeer(address, username, password);
             Assert.IsTrue(result, "Remove peer request failed.");
         }
 
@@ -103,19 +105,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("192.168.197.29:6800")]
         public void TestAddPeer1(string address)
         {
-            var result = _ch1.NetAddPeer(address);
+            var result = _ch1.NetAddPeer(address, username, password);
             Assert.IsTrue(result, "Add peer request failed.");
             TestGetPeer();
         }
-        
+
         [TestMethod]
         [DataRow("192.168.197.13:6800")]
         [DataRow("192.168.197.29:6800")]
         public void TestRemovePeer1(string address)
         {
-            var result = _ch1.NetRemovePeer(address);
+            var result = _ch1.NetRemovePeer(address, username, password);
             Assert.IsTrue(result, "Remove peer request failed.");
-        
+
             TestGetPeer();
         }
 
@@ -131,20 +133,20 @@ namespace AElf.Automation.Contracts.ScenarioTest
         [DataRow("192.168.197.29:6800")]
         public void TestAddPeer2(string address)
         {
-            var result = _ch2.NetAddPeer(address);
+            var result = _ch2.NetAddPeer(address, username, password);
             Assert.IsTrue(result, "Add peer request failed.");
 
             TestGetPeer2();
         }
-        
+
         [TestMethod]
         [DataRow("192.168.197.34:6800")]
         [DataRow("192.168.197.29:6800")]
         public void TestRemovePeer2(string address)
         {
-            var result = _ch2.NetRemovePeer(address);
+            var result = _ch2.NetRemovePeer(address, username, password);
             Assert.IsTrue(result, "Remove peer request failed.");
-        
+
             TestGetPeer();
         }
 
@@ -157,13 +159,15 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         private async Task<HttpResponseMessage> PostResponseAsync(string url, Dictionary<string, string> paramters,
-            string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK, BasicAuth basicAuth = null, string reason = null)
+            string version = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK, BasicAuth basicAuth = null,
+            string reason = null)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
             if (basicAuth != null)
             {
                 var byteArray = Encoding.ASCII.GetBytes($"{basicAuth.UserName}:{basicAuth.Password}");
-                Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                Client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
             }
 
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -176,32 +180,34 @@ namespace AElf.Automation.Contracts.ScenarioTest
             if (reason != null) response.ReasonPhrase.ShouldBe(reason);
             return response;
         }
-        
+
         protected async Task<string> DeleteResponseAsStringAsync(string url, string version = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,BasicAuth basicAuth = null)
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK, BasicAuth basicAuth = null)
         {
-            var response = await DeleteResponseAsync(url, version, expectedStatusCode,basicAuth);
+            var response = await DeleteResponseAsync(url, version, expectedStatusCode, basicAuth);
             return await response.Content.ReadAsStringAsync();
         }
-        
+
         private async Task<HttpResponseMessage> DeleteResponseAsync(string url, string version = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,BasicAuth basicAuth = null, string reason = null)
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK, BasicAuth basicAuth = null, string reason = null)
         {
             version = !string.IsNullOrWhiteSpace(version) ? $";v={version}" : string.Empty;
             Client.DefaultRequestHeaders.Accept.Clear();
-            Client.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
+            Client.DefaultRequestHeaders.Accept.Add(
+                MediaTypeWithQualityHeaderValue.Parse($"application/json{version}"));
             if (basicAuth != null)
             {
                 var byteArray = Encoding.ASCII.GetBytes($"{basicAuth.UserName}:{basicAuth.Password}");
-                Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                Client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
             }
-            
+
             var response = await Client.DeleteAsync(url);
             response.StatusCode.ShouldBe(expectedStatusCode);
-            if(reason != null) response.ReasonPhrase.ShouldBe(reason);
+            if (reason != null) response.ReasonPhrase.ShouldBe(reason);
             return response;
         }
-        
+
         public class BasicAuth
         {
             public static readonly string DefaultUserName = "user";
@@ -215,7 +221,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             };
 
             public string UserName { get; set; }
-        
+
             public string Password { get; set; }
         }
     }

@@ -43,6 +43,8 @@ namespace AElfChain.Common.Contracts
         GetCurrentTermMiningReward,
         GetMinedBlocksOfPreviousTerm,
         GetCurrentMiningRewardPerBlock,
+        GetMinerIncreaseInterval,
+        SetMinerIncreaseInterval,
 
         AnnounceElection,
         QuitElection,
@@ -94,6 +96,11 @@ namespace AElfChain.Common.Contracts
         public Int32Value GetMaximumMinersCount()
         {
             return CallViewMethod<Int32Value>(ConsensusMethod.GetMaximumMinersCount, new Empty());
+        }
+        
+        public Int64Value GetMinerIncreaseInterval()
+        {
+            return CallViewMethod<Int64Value>(ConsensusMethod.GetMinerIncreaseInterval, new Empty());
         }
         
         public Int32Value GetMaximumBlocksCount()

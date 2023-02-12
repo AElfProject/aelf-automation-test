@@ -204,6 +204,37 @@ namespace AElf.Automation.EconomicSystemTest
             newMaximumBlocksCount.ShouldBe(maximumBlocksCount < amount ? maximumBlocksCount : amount);
             Logger.Info($"{newMaximumBlocksCount}");
         }
+        
+        [TestMethod]
+        public void SetMinerIncreaseInterval()
+        {
+            var minerIncreaseInterval = Behaviors.ConsensusService.GetMinerIncreaseInterval().Value;
+            Logger.Info($"{minerIncreaseInterval}");
+            var newIncreaseInterval = 600;
+            var consensus = Behaviors.ConsensusService;
+            var input = new Int64Value {Value = newIncreaseInterval};
+            var result = Behaviors.AuthorityManager.ExecuteTransactionWithAuthority(consensus.ContractAddress,
+                nameof(ConsensusMethod.SetMinerIncreaseInterval), input, InitAccount);
+            result.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var afterMinerIncreaseInterval = Behaviors.ConsensusService.GetMinerIncreaseInterval().Value;
+            Logger.Info($"{afterMinerIncreaseInterval}");
+            afterMinerIncreaseInterval.ShouldBe(newIncreaseInterval);
+        }
+        
+        [TestMethod]
+        public void SetMinerIncreaseInterval_Failed()
+        {
+            var minerIncreaseInterval = Behaviors.ConsensusService.GetMinerIncreaseInterval().Value;
+            Logger.Info($"{minerIncreaseInterval}");
+            var newIncreaseInterval = 3156048001;
+            var consensus = Behaviors.ConsensusService;
+            var input = new Int64Value {Value = newIncreaseInterval};
+            var result = Behaviors.AuthorityManager.ExecuteTransactionWithAuthority(consensus.ContractAddress,
+                nameof(ConsensusMethod.SetMinerIncreaseInterval), input, InitAccount);
+            result.Status.ShouldBe(TransactionResultStatus.Failed);
+            result.Error.ShouldContain("Invalid interval");
+        }
 
         [TestMethod]
         public void SetMaximumMinersCountThroughAssociation()
@@ -307,6 +338,13 @@ namespace AElf.Automation.EconomicSystemTest
             var maximumMinersCount = Behaviors.ConsensusService.GetMaximumMinersCount().Value;
             Logger.Info($"{maximumMinersCount}");
         }
+        
+        [TestMethod]
+        public void GetMinerIncreaseInterval()
+        {
+            var minerIncreaseInterval = Behaviors.ConsensusService.GetMinerIncreaseInterval().Value;
+            Logger.Info($"{minerIncreaseInterval}");
+        }
 
         [TestMethod]
         public void GetMaximumBlocksCount()
@@ -350,7 +388,8 @@ namespace AElf.Automation.EconomicSystemTest
                 if (candidateVote.Equals(new CandidateVote()))
                     continue;
                 voteMessage +=
-                    $" {fullNode.ToHex()} = {address} All tickets: {candidateVote.AllObtainedVotedVotesAmount}, " +
+                    $" {fullNode.ToHex()} = {address}\n" +
+                    $" All tickets: {candidateVote.AllObtainedVotedVotesAmount}, " +
                     $"Active tickets: {candidateVote.ObtainedActiveVotedVotesAmount}\r\n";
             }
 
@@ -368,7 +407,9 @@ namespace AElf.Automation.EconomicSystemTest
             var snapshot =
                 Behaviors.ElectionService.CallViewMethod<TermSnapshot>(ElectionMethod.GetTermSnapshot,
                     new GetTermSnapshotInput {TermNumber = termNumber - 1});
-            Logger.Info($"{snapshot.ElectionResult},{snapshot.MinedBlocks},{snapshot.EndRoundNumber}");
+            Logger.Info($"{snapshot.ElectionResult}," +
+                        $"\n mined blocks: {snapshot.MinedBlocks}," +
+                        $"\n end round number: {snapshot.EndRoundNumber}");
         }
 
         [TestMethod]

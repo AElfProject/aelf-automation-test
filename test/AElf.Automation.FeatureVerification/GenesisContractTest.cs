@@ -73,8 +73,8 @@ namespace AElf.Automation.Contracts.ScenarioTest
             }
             else
             {
-                Tester.TransferTokenToMiner(InitAccount);
-                Tester.TransferToken(OtherAccount);
+                // Tester.TransferTokenToMiner(InitAccount);
+                // Tester.TransferToken(OtherAccount);
             }
             Members = new List<string>{InitAccount,Member,OtherAccount};
         }
@@ -87,8 +87,6 @@ namespace AElf.Automation.Contracts.ScenarioTest
         // MainChain: IsAuthoiryRequired == true; IsPrivilegePreserved == false;
         // only miner can deploy and update contracts
         // all the contracts' author on main chain is genesis contract
-
-
         [TestMethod]
         public void UpdateSmartContract_UserUpdate()
         {
@@ -288,7 +286,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var byteStringIndexed =
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ContractDeployed))).Indexed.First());
             var author = ContractDeployed.Parser.ParseFrom(byteStringIndexed).Author;
-            Logger.Info($"{deployAddress}, {author}");
+            Logger.Info($"{deployAddress}, {author}, {release.BlockNumber}");
         }
 
         [TestMethod]
@@ -351,7 +349,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var byteString =
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(CodeUpdated))).Indexed.First());
             var updateAddress = CodeUpdated.Parser.ParseFrom(byteString).Address;
-            Logger.Info($"{updateAddress}");
+            Logger.Info($"{updateAddress}, {release.BlockNumber}");
         }
 
         [TestMethod]

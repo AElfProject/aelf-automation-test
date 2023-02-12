@@ -22,6 +22,7 @@ using Google.Protobuf;
 using log4net;
 using Newtonsoft.Json;
 using Volo.Abp.Threading;
+using TokenContract = AElfChain.Common.Contracts.TokenContract;
 
 namespace AElf.Automation.RpcPerformance
 {

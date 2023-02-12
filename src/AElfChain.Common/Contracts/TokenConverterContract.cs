@@ -1,4 +1,3 @@
-using System;
 using AElf.Client.Dto;
 using AElf.Contracts.TokenConverter;
 using AElfChain.Common.Managers;
