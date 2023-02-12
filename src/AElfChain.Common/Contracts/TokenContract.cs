@@ -54,7 +54,16 @@ namespace AElfChain.Common.Contracts
         GetOwningRental,
         GetLockedAmount,
         GetMethodFeeController,
-        IsInCreateTokenWhiteList
+
+        IsInCreateTokenWhiteList,
+        GetVirtualAddressForLocking,
+        GetMethodFeeFreeAllowancesConfig,
+        GetMethodFeeFreeAllowances,
+
+        SetTransactionFeeDelegations,
+        GetTransactionFeeDelegationsOfADelegatee,
+        RemoveTransactionFeeDelegator,
+        RemoveTransactionFeeDelegatee
     }
 
     public class TokenContract : BaseContract<TokenMethod>
@@ -74,13 +83,13 @@ namespace AElfChain.Common.Contracts
 
         public TransactionResultDto TransferBalance(string from, string to, long amount, string symbol = "")
         {
-            var tester = GetNewTester(from);
-            var result = tester.ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
+            // var tester = GetNewTester(from);
+            SetAccount(from);
+            var result = ExecuteMethodWithResult(TokenMethod.Transfer, new TransferInput
             {
                 Symbol = NodeOption.GetTokenSymbol(symbol),
                 To = to.ConvertAddress(),
-                Amount = amount,
-                Memo = $"T-{Guid.NewGuid().ToString()}"
+                Amount = amount
             });
 
             return result;
@@ -172,10 +181,43 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<OwningRental>(TokenMethod.GetOwningRental, new Empty());
         }
-        
+
         public bool IsInCreateTokenWhiteList(string contract)
         {
             return CallViewMethod<BoolValue>(TokenMethod.IsInCreateTokenWhiteList, contract.ConvertAddress()).Value;
+        }
+
+        public Address GetVirtualAddressForLocking(Address address, Hash lockId)
+        {
+            return CallViewMethod<Address>(TokenMethod.GetVirtualAddressForLocking,
+                new GetVirtualAddressForLockingInput
+                {
+                    Address = address,
+                    LockId = lockId
+                });
+        }
+
+        public MethodFeeFreeAllowancesConfig GetMethodFeeFreeAllowancesConfig()
+        {
+            return CallViewMethod<MethodFeeFreeAllowancesConfig>(TokenMethod.GetMethodFeeFreeAllowancesConfig,
+                new Empty());
+        }
+
+
+        public MethodFeeFreeAllowances GetMethodFeeFreeAllowances(string address)
+        {
+            return CallViewMethod<MethodFeeFreeAllowances>(TokenMethod.GetMethodFeeFreeAllowances,
+                address.ConvertAddress());
+        }
+
+        public TransactionFeeDelegations GetTransactionFeeDelegationsOfADelegatee(string delegator, string delegatee)
+        {
+            return CallViewMethod<TransactionFeeDelegations>(TokenMethod.GetTransactionFeeDelegationsOfADelegatee,
+                new GetTransactionFeeDelegationsOfADelegateeInput
+                {
+                    DelegatorAddress = delegator.ConvertAddress(),
+                    DelegateeAddress = delegatee.ConvertAddress()
+                });
         }
     }
 }

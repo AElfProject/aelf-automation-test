@@ -18,6 +18,7 @@ namespace AElfChain.Common.Contracts
         ReplaceCandidatePubkey,
         SetCandidateAdmin,
         EnableElection,
+        FixWelfareProfit,
 
         //view
         GetCalculateVoteWeight,
@@ -41,7 +42,9 @@ namespace AElfChain.Common.Contracts
         GetMinerElectionVotingItemId,
         GetCandidateAdmin,
         GetNewestPubkey,
-        GetReplacedPubkey
+        GetReplacedPubkey,
+        GetVotersCount,
+        GetVotesAmount
     }
 
     public class ElectionContract : BaseContract<ElectionMethod>
@@ -106,6 +109,20 @@ namespace AElfChain.Common.Contracts
             var replacedPubkey = CallViewMethod<StringValue>(ElectionMethod.GetReplacedPubkey, new StringValue{Value = pubkey});
 
             return replacedPubkey.Value;
+        }
+        
+        public long GetVotesAmount()
+        {
+            var votesAmount = CallViewMethod<Int64Value>(ElectionMethod.GetVotesAmount, new Empty());
+
+            return votesAmount.Value;
+        }
+        
+        public long GetVotersCount()
+        {
+            var votersCount =  CallViewMethod<Int64Value>(ElectionMethod.GetVotersCount, new Empty());
+
+            return votersCount.Value;
         }
     }
 }

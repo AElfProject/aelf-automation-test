@@ -8,11 +8,19 @@ namespace AElf.Automation.NetworkTest
     {
         [JsonProperty("Type")] public string Type { get; set; }
         [JsonProperty("Nodes")] public List<Node> Nodes { get; set; }
+        [JsonProperty("BasicAuth")] public BasicAuth BasicAuth { get; set; }
+
     }
 
     public class Node
     {
         [JsonProperty("ListeningPort")] public string ListeningPort { get; set; }
+    }
+
+    public class BasicAuth
+    {
+        [JsonProperty("UserName")] public string UserName { get; set; }
+        [JsonProperty("Password")] public string Password { get; set; }
     }
 
     public static class ConfigHelper

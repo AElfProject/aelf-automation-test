@@ -4,7 +4,6 @@ using AElf.Client.Dto;
 using AElf.Contracts.Election;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
-using AElf.Contracts.TokenConverter;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -39,7 +38,7 @@ namespace AElf.Automation.EconomicSystemTest
             {
                 CandidatePubkey = NodeManager.GetAccountPublicKey(candidate),
                 Amount = amount,
-                EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromDays(lockTime)).ToTimestamp()
+                EndTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(lockTime)).ToTimestamp()
             });
             vote.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var fee = vote.GetDefaultTransactionFee();
@@ -63,18 +62,32 @@ namespace AElf.Automation.EconomicSystemTest
             return vote;
         }
         
-         public TransactionResultDto UserChangeVote(string account, string candidate, Hash voteId)
+         public TransactionResultDto UserChangeVote(string account, string candidate, Hash voteId, bool isReset)
         {
             ElectionService.SetAccount(account);
             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.ChangeVotingOption, new ChangeVotingOptionInput
             {
                 CandidatePubkey = NodeManager.GetAccountPublicKey(candidate),
-                VoteId = voteId
+                VoteId = voteId,
+                IsResetVotingTime = isReset
             });
             vote.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             var fee = vote.GetDefaultTransactionFee();
             return vote;
         }
+         
+         public TransactionResultDto UserChangeVoteOld(string account, string candidate, Hash voteId)
+         {
+             ElectionService.SetAccount(account);
+             var vote = ElectionService.ExecuteMethodWithResult(ElectionMethod.ChangeVotingOption, new ChangeVotingOptionInput
+             {
+                 CandidatePubkey = NodeManager.GetAccountPublicKey(candidate),
+                 VoteId = voteId
+             });
+             vote.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+             var fee = vote.GetDefaultTransactionFee();
+             return vote;
+         }
          
         public TransactionResultDto UserWithdraw(string account, string voteId, long amount)
         {
