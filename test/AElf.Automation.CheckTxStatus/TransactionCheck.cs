@@ -3,12 +3,10 @@ using System.Linq;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core.Extension;
 using AElf.Kernel;
-using AElf.Types;
 using AElfChain.Common.DtoExtension;
 using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
-using Virgil.Crypto;
 using Volo.Abp.Threading;
 
 namespace AElf.Automation.CheckTxStatus

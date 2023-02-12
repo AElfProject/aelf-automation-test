@@ -14,7 +14,6 @@ using AElfChain.Common.Helpers;
 using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Microsoft.VisualBasic.CompilerServices;
 using Sharprompt;
 using Shouldly;
 using Volo.Abp.Threading;

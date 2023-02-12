@@ -8,7 +8,6 @@ using AElf.Standards.ACS0;
 using AElf;
 using AElf.Client.Service;
 using AElf.Client.Dto;
-using AElf.Client.Service;
 using AElf.Types;
 using AElfChain.Common.Contracts;
 using AElfChain.Common.DtoExtension;
