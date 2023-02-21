@@ -782,5 +782,13 @@ namespace AElf.Automation.SideChainTests
             var associationInfo = MainServices.AssociationService.GetOrganization(defaultOrganization.OwnerAddress);
             Logger.Info($"{associationInfo}");
         }
+
+        [TestMethod]
+        public void GetSideChainCreator()
+        {
+            var chainId = ChainHelper.ConvertBase58ToChainId("tDVV");
+            var result = SideServices.First().CrossChainService.GetSideChainCreator(chainId, InitAccount);
+            Logger.Info(result);
+        }
     }
 }

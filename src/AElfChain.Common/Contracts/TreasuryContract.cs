@@ -17,13 +17,16 @@ namespace AElfChain.Common.Contracts
         Donate,
         DonateAll,
         SetVoteWeightInterest,
+        SetProfitsReceiver,
 
         //View
         GetTreasurySchemeId,
         GetUndistributedDividends,
         GetMinerRewardWeightProportion,
         GetDividendPoolWeightProportion,
-        GetDividends
+        GetDividends,
+        GetProfitsReceiver,
+        GetProfitsReceiverOrDefault
     }
 
     public class TreasuryContract : BaseContract<TreasuryMethod>
@@ -34,7 +37,24 @@ namespace AElfChain.Common.Contracts
             SetAccount(callAddress);
         }
         
+        public Address GetProfitReceiver(string publicKey)
+        {
+            var result = CallViewMethod<Address>(TreasuryMethod.GetProfitsReceiver,new StringValue
+            {
+                Value = publicKey
+            });
+            return result;
+        }
         
+        public Address GetProfitsReceiverOrDefault(string publicKey)
+        {
+            var result = CallViewMethod<Address>(TreasuryMethod.GetProfitsReceiverOrDefault,new StringValue
+            {
+                Value = publicKey
+            });
+            return result;
+        }
+
         public Dividends GetCurrentTreasuryBalance()
         {
             var result = CallViewMethod<Dividends>(TreasuryMethod.GetUndistributedDividends,new Empty());

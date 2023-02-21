@@ -245,7 +245,7 @@ namespace AElfChain.Console.Commands
         {
             "Parameter: [NetServiceAddress]".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
-            var result = NodeManager.NetAddPeer(input[0]);
+            var result = NodeManager.NetAddPeer(input[0], "","");
             $"AddResult: {result}".WriteSuccessLine();
         }
 
@@ -253,7 +253,7 @@ namespace AElfChain.Console.Commands
         {
             "Parameter: [NetServiceAddress]".WriteSuccessLine();
             var input = CommandOption.InputParameters(1);
-            var result = NodeManager.NetRemovePeer(input[0]);
+            var result = NodeManager.NetRemovePeer(input[0], "","");
             $"RemoveResult: {result}".WriteSuccessLine();
         }
 

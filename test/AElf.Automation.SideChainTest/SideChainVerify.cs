@@ -15,6 +15,8 @@ using AElfChain.Common.Managers;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Shouldly;
 using Volo.Abp.Threading;
 
@@ -562,45 +564,6 @@ namespace AElf.Automation.SideChainTests
             afterMainInfo.Issued.ShouldBe(mainInfo.Issued);
             afterMainInfo.Supply.ShouldBe(mainInfo.Supply + amount);
         }
-        
-        [TestMethod]
-         public async Task MainChainReceive()
-         {
-             var services = SideServices.First();
-            var account = "sCdEBrmnc1uCxbyeHWK9n7Y6CxfWxwDK1Bs43PUY3BYUFJQ5M";
-            var toAccount = "2qjoi1ZxwmH2XqQFyMhykjW364Ce2cBxxRp47zrvZFT4jqW8Ru";
-            var symbol = services.TokenService.GetPrimaryTokenSymbol();
-            var symbolInfo = services.TokenService.GetTokenInfo(symbol);
-            // execute cross chain transfer
-            var rawTx =
-                "";
-            Logger.Info($"Transaction rawTx is: {rawTx}");
-            var txId = "c23bbfbf5779782b2090b453cb4b6f7d9639b35dd8af31a2848f2e004fd11750";
-            // get transaction info            
-            var blockNumber = 52390083;
-            await MainChainCheckSideChainBlockIndex(services, blockNumber);
-            var merklePath = GetMerklePath(blockNumber, txId, services, out var root);
-            var crossChainReceiveToken = new CrossChainReceiveTokenInput
-            {
-                FromChainId = services.ChainId,
-                MerklePath = merklePath
-            };
-            // verify side chain transaction
-            var crossChainMerkleProofContext =
-                services.CrossChainService.GetCrossChainMerkleProofContext(blockNumber);
-            crossChainReceiveToken.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext
-                .MerklePathFromParentChain.MerklePathNodes);
-            crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
-            crossChainReceiveToken.TransferTransactionBytes =
-                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
-
-            var mainInfo = MainServices.TokenService.GetTokenInfo(symbol);
-            var result = CrossChainReceive(MainServices, account, crossChainReceiveToken);
-            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
-            //verify
-            var balance = GetBalance(MainServices, toAccount, symbol);
-            Logger.Info($"account {toAccount}, {symbol} balance: {balance}");
-         }
 
         [TestMethod]
         public async Task SideChainACrossChainTransferSideChainB()
@@ -663,6 +626,120 @@ namespace AElf.Automation.SideChainTests
             Logger.Info($"balance: {balance}");
         }
 
+        #endregion
+
+        #region Only receive
+        
+         [TestMethod]
+         public async Task MainChainReceive()
+         {
+             var services = SideServices.First();
+            var account = "sCdEBrmnc1uCxbyeHWK9n7Y6CxfWxwDK1Bs43PUY3BYUFJQ5M";
+            var toAccount = "2qjoi1ZxwmH2XqQFyMhykjW364Ce2cBxxRp47zrvZFT4jqW8Ru";
+            var symbol = services.TokenService.GetPrimaryTokenSymbol();
+            var symbolInfo = services.TokenService.GetTokenInfo(symbol);
+            // execute cross chain transfer
+            var rawTx =
+                "";
+            Logger.Info($"Transaction rawTx is: {rawTx}");
+            var txId = "c23bbfbf5779782b2090b453cb4b6f7d9639b35dd8af31a2848f2e004fd11750";
+            // get transaction info            
+            var blockNumber = 52390083;
+            await MainChainCheckSideChainBlockIndex(services, blockNumber);
+            var merklePath = GetMerklePath(blockNumber, txId, services, out var root);
+            var crossChainReceiveToken = new CrossChainReceiveTokenInput
+            {
+                FromChainId = services.ChainId,
+                MerklePath = merklePath
+            };
+            // verify side chain transaction
+            var crossChainMerkleProofContext =
+                services.CrossChainService.GetCrossChainMerkleProofContext(blockNumber);
+            crossChainReceiveToken.MerklePath.MerklePathNodes.AddRange(crossChainMerkleProofContext
+                .MerklePathFromParentChain.MerklePathNodes);
+            crossChainReceiveToken.ParentChainHeight = crossChainMerkleProofContext.BoundParentChainHeight;
+            crossChainReceiveToken.TransferTransactionBytes =
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
+
+            var mainInfo = MainServices.TokenService.GetTokenInfo(symbol);
+            var result = CrossChainReceive(MainServices, account, crossChainReceiveToken);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            //verify
+            var balance = GetBalance(MainServices, toAccount, symbol);
+            Logger.Info($"account {toAccount}, {symbol} balance: {balance}");
+         }
+        
+        [TestMethod]
+        public void SideChainReceive()
+        {
+            var symbol = "ELF";
+            var sideService = SideServices.First();
+
+            var txId = "";
+            var txResult = MainServices.NodeManager.CheckTransactionResult(txId);
+            // get transaction info            
+            var status = txResult.Status.ConvertTransactionResultStatus();
+            var rawTx = GenerateRawTransaction(txResult.Transaction.From, txResult.Transaction.To,
+                txResult.Transaction.MethodName, txResult.Transaction.RefBlockNumber,
+                txResult.Transaction.RefBlockPrefix, txResult.Transaction.Signature, txResult.Transaction.Params);
+            Logger.Info($"Transaction rawTx is: {rawTx}");
+            status.ShouldBe(TransactionResultStatus.Mined);
+            Logger.Info(
+                $"Cross chain Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId} to chain {sideService.ChainId}");
+
+            var merklePath = GetMerklePath(txResult.BlockNumber, txId, MainServices,
+                out var root);
+            var crossChainReceiveToken = new CrossChainReceiveTokenInput
+            {
+                FromChainId = MainServices.ChainId,
+                ParentChainHeight = txResult.BlockNumber,
+                MerklePath = merklePath
+            };
+            crossChainReceiveToken.TransferTransactionBytes =
+                ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
+            
+            var result = CrossChainReceive(sideService, InitAccount, crossChainReceiveToken);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+
+            //verify
+            var tokenInfo = sideService.TokenService.GetTokenInfo(symbol);
+            Logger.Info($"after receive : {tokenInfo}");
+        }
+        
+        private string GenerateRawTransaction(string from, string to, string methodName,
+            long refBlockNumber, string refBlockPrefix, string sign, string param)
+        {
+            var tr = new Transaction
+            {
+                From = from.ConvertAddress(),
+                To = to.ConvertAddress(),
+                MethodName = methodName
+            };
+
+            if (tr.MethodName == null)
+            {
+                Logger.Error("Method not found.");
+                return string.Empty;
+            }
+            var inputParam = (JObject)JsonConvert.DeserializeObject(param);
+
+            var input = new CrossChainTransferInput
+            {
+                To = inputParam["to"].ToString().ConvertAddress(),
+                Symbol = inputParam["symbol"].ToString(),
+                Amount = long.Parse(inputParam["amount"].ToString()),
+                ToChainId = int.Parse(inputParam["toChainId"].ToString()),
+                IssueChainId = int.Parse(inputParam["issueChainId"].ToString())
+            };
+
+            tr.Params = input.ToByteString();
+            tr.RefBlockNumber = refBlockNumber;
+            tr.RefBlockPrefix = ByteString.FromBase64(refBlockPrefix);
+            tr.Signature = ByteString.FromBase64(sign);
+
+            return tr.ToByteArray().ToHex();
+        }
+        
         #endregion
 
         #region cross create token
@@ -798,8 +875,9 @@ namespace AElf.Automation.SideChainTests
         {
             var service = SideServices.First();
             var block = AsyncHelper.RunSync(() => MainServices.NodeManager.ApiClient.GetBlockByHeightAsync(10000));
+            var txId = "36753942318e2521fab2d72f8d1bb7cea2f9d5dc0e13a9f84f00c262f593e26f";
             var transaction = AsyncHelper.RunSync(() =>
-                MainServices.NodeManager.ApiClient.GetTransactionResultsAsync(block.BlockHash)).First();
+                MainServices.NodeManager.ApiClient.GetTransactionResultAsync(txId));
             var verifyInput =
                 GetMainChainTransactionVerificationInput(transaction.BlockNumber, transaction.TransactionId);
             var result = service.CrossChainService.CallViewMethod<BoolValue>(
