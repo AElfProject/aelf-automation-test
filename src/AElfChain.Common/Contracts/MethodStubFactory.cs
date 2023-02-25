@@ -83,11 +83,20 @@ namespace AElfChain.Common.Contracts
                         BlockNumber = resultDto.BlockNumber,
                         Logs =
                         {
-                            resultDto.Logs.Select(o => new LogEvent
+                            resultDto.Logs.Select(o =>
                             {
-                                Address = o.Address.ConvertAddress(),
-                                Name = o.Name,
-                                NonIndexed = ByteString.FromBase64(o.NonIndexed)
+                                var logEvent = new LogEvent
+                                {
+                                    Address = o.Address.ConvertAddress(),
+                                    Name = o.Name,
+                                    NonIndexed = ByteString.FromBase64(o.NonIndexed),
+                                };
+                                foreach (var indexed in o.Indexed)
+                                {
+                                    logEvent.Indexed.Add(ByteString.FromBase64(indexed));
+                                }
+                                return logEvent;
+                                
                             }).ToArray()
                         },
                         Bloom = ByteString.CopyFromUtf8(resultDto.Bloom ?? ""),

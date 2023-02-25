@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using AElf.Client.Dto;
 using AElf.Contracts.MultiToken;
+using AElf.CSharp.Core;
 using AElf.Types;
 using Google.Protobuf;
+using Shouldly;
 
 namespace AElfChain.Common.DtoExtension
 {
@@ -55,7 +58,14 @@ namespace AElfChain.Common.DtoExtension
                 if (log.Name == "ResourceTokenCharged" || log.Name == "TransactionFeeCharged")
                 {
                     var info = TransactionFeeCharged.Parser.ParseFrom(ByteString.FromBase64(log.NonIndexed));
-                    dic.Add(info.Symbol, info.Amount);
+                    if (dic.Keys.Contains(info.Symbol))
+                    {
+                        dic[info.Symbol] = dic[info.Symbol].Add(info.Amount);
+                    }
+                    else
+                    {
+                        dic.Add(info.Symbol, info.Amount);
+                    }
                 }
 
             return dic;

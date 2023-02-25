@@ -132,7 +132,6 @@ service TokenContract {
 
     rpc AddAddressToCreateTokenWhiteList (aelf.Address) returns (google.protobuf.Empty) {
     }
-    
     rpc RemoveAddressFromCreateTokenWhiteList (aelf.Address) returns (google.protobuf.Empty) {
     }
 
@@ -146,6 +145,11 @@ service TokenContract {
     }
 
     rpc RemoveTransactionFeeDelegatee (RemoveTransactionFeeDelegateeInput) returns (google.protobuf.Empty){
+    }
+
+    // Get all delegatees' address of delegator from input
+    rpc GetTransactionFeeDelegatees (GetTransactionFeeDelegateesInput) returns (GetTransactionFeeDelegateesOutput) {
+
     }
 
     // Query token information.
@@ -221,13 +225,9 @@ service TokenContract {
     rpc IsTokenAvailableForMethodFee (google.protobuf.StringValue) returns (google.protobuf.BoolValue) {
         option (aelf.is_view) = true;
     }
-    rpc IsInCreateTokenWhiteList (aelf.Address) returns (google.protobuf.BoolValue) {
-        option (aelf.is_view) = true;
-    }
     rpc GetReservedExternalInfoKeyList (google.protobuf.Empty) returns (StringList) {
         option (aelf.is_view) = true;
     }
-
     rpc GetMethodFeeFreeAllowances (aelf.Address) returns (MethodFeeFreeAllowances) {
         option (aelf.is_view) = true;
     }
@@ -709,7 +709,16 @@ message GetTransactionFeeDelegationsOfADelegateeInput {
     aelf.Address delegator_address = 2;
 }
 
+message GetTransactionFeeDelegateesInput {
+    aelf.Address delegator_address = 1;
+}
+
+message GetTransactionFeeDelegateesOutput {
+    repeated aelf.Address delegatee_addresses = 1;
+}
+
 // Events
+
 message Transferred {
     option (aelf.is_event) = true;
     // The source address of the transferred token.
@@ -855,6 +864,8 @@ message CrossChainReceived {
     int32 issue_chain_id = 7;
     // The parent chain height of the transfer transaction.
     int64 parent_chain_height = 8;
+    // The id of transfer transaction.
+    aelf.Hash transfer_transaction_id =9;
 }
 
 message ExternalInfoChanged {
