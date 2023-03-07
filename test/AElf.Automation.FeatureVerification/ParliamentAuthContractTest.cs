@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AElf.Standards.ACS3;
 using AElf.Client.Service;
 using AElf.Contracts.MultiToken;
@@ -116,7 +117,38 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var proposal = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
             Logger.Info($"Proposal is : {proposal}");
         }
+        //c9c887ebd840d7b6d3d356af920efbaa4bf214a0dcc5bdfa117580ca9e9cad8b - toBeRelease = true
+        //bc47557cadf89676e9a71f241027ebaf4d723398d7c6c35583448ea4135e11a7
+        //d0164ae8856e2729ab59587a8f5a1af2c49c21d008523f39c17879c416b00c59 - expired
+        //7d70e12831b962f5038f9414f7b044deea0fd3933ae1a0a630581a6c682cfd00
+        //924e7d49ae2f568bcb4d2c045e255b46b44b487e3387db77c27b64528a812cd1 - reject
+        //3b513179e05efdd68d5441a4d59494e21740c33d708ea50dae6f9cd0fe5f1652 - already release
 
+        [TestMethod]
+        public void GetProposalList()
+        {
+            var toBeReleaseProposal = "c9c887ebd840d7b6d3d356af920efbaa4bf214a0dcc5bdfa117580ca9e9cad8b";
+            var expiredProposal = "d0164ae8856e2729ab59587a8f5a1af2c49c21d008523f39c17879c416b00c59";
+            var alreadyReleased = "3b513179e05efdd68d5441a4d59494e21740c33d708ea50dae6f9cd0fe5f1652";
+            var availableProposal = new ProposalIdList();
+            availableProposal.ProposalIds.Add(Hash.LoadFromHex("bc47557cadf89676e9a71f241027ebaf4d723398d7c6c35583448ea4135e11a7"));
+            availableProposal.ProposalIds.Add(Hash.LoadFromHex("7d70e12831b962f5038f9414f7b044deea0fd3933ae1a0a630581a6c682cfd00"));
+            availableProposal.ProposalIds.Add(Hash.LoadFromHex("924e7d49ae2f568bcb4d2c045e255b46b44b487e3387db77c27b64528a812cd1"));
+            availableProposal.ProposalIds.Add(Hash.LoadFromHex(toBeReleaseProposal));
+
+            var proposalList = new ProposalIdList();
+            proposalList.ProposalIds.Add(Hash.LoadFromHex(expiredProposal));
+            proposalList.ProposalIds.Add(Hash.LoadFromHex(alreadyReleased));
+            proposalList.ProposalIds.AddRange(availableProposal.ProposalIds);
+
+            var releaseThresholdReachedProposals = Parliament.GetReleaseThresholdReachedProposals(proposalList);
+            releaseThresholdReachedProposals.ProposalIds.ShouldContain(Hash.LoadFromHex(toBeReleaseProposal));
+            releaseThresholdReachedProposals.ProposalIds.Count.ShouldBe(1);
+            
+            var availableProposals = Parliament.GetAvailableProposals(proposalList);
+            availableProposals.ProposalIds.ShouldBe(availableProposal.ProposalIds);
+        }
+        
         [TestMethod]
         [DataRow("62e4a2a01d92b9c81a5696c6b15bdc1a50d55973220e2e6c8a1483e788abdebf")]
         public void GetProposal(string proposalId)

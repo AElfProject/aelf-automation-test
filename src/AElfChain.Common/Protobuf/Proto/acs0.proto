@@ -17,77 +17,105 @@ service ACS0 {
     // Deploy a system smart contract on chain and return the address of the system contract deployed.
     rpc DeploySystemSmartContract (SystemContractDeploymentInput) returns (aelf.Address) {
     }
-    
+
     // Deploy a smart contract on chain and return the address of the contract deployed.
     rpc DeploySmartContract (ContractDeploymentInput) returns (aelf.Address) {
     }
-    
+
     // Update a smart contract on chain.
     rpc UpdateSmartContract (ContractUpdateInput) returns (aelf.Address) {
     }
-    
+
     // Create a proposal to deploy a new contract and returns the id of the proposed contract.
     rpc ProposeNewContract (ContractDeploymentInput) returns (aelf.Hash) {
     }
-    
+
     // Create a proposal to check the code of a contract and return the id of the proposed contract.
     rpc ProposeContractCodeCheck (ContractCodeCheckInput) returns (aelf.Hash) {
     }
-    
+
     // Create a proposal to update the specified contract
     // and return the id of the proposed contract.
     rpc ProposeUpdateContract (ContractUpdateInput) returns (aelf.Hash) {
     }
-    
+
     // Release the contract proposal which has been approved.
     rpc ReleaseApprovedContract (ReleaseContractInput) returns (google.protobuf.Empty) {
     }
-    
+
     // Release the proposal which has passed the code check.
     rpc ReleaseCodeCheckedContract (ReleaseContractInput) returns (google.protobuf.Empty) {
     }
-    
+
+    // Deploy a user smart contract on chain and return the hash of the contract code.
+    rpc DeployUserSmartContract (ContractDeploymentInput) returns (aelf.Hash) {
+    }
+
+    // Update a user smart contract on chain.
+    rpc UpdateUserSmartContract (ContractUpdateInput) returns (google.protobuf.Empty) {
+    }
+
+    // Release the proposal which has passed the code check.
+    rpc ReleaseApprovedUserSmartContract(ReleaseContractInput) returns (google.protobuf.Empty) {
+    }
+
+    // Perform user contract deployment.
+    rpc PerformDeployUserSmartContract(ContractDeploymentInput) returns (aelf.Address) {
+    }
+
+    // Perform user contract update.
+    rpc PerformUpdateUserSmartContract(ContractUpdateInput) returns (google.protobuf.Empty) {
+    }
+
+    // Set author of the specified contract.
+    rpc SetContractAuthor (SetContractAuthorInput) returns (google.protobuf.Empty) {
+    }
+
     // Validate whether the input system contract exists.
     rpc ValidateSystemContractAddress(ValidateSystemContractAddressInput) returns (google.protobuf.Empty){
     }
-    
+
     // Set authority of contract deployment.
     rpc SetContractProposerRequiredState (google.protobuf.BoolValue) returns (google.protobuf.Empty) {
     }
-    
+
     // Get the current serial number of genesis contract 
     // (corresponds to the serial number that will be given to the next deployed contract).
     rpc CurrentContractSerialNumber (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get detailed information about the specified contract.
     rpc GetContractInfo (aelf.Address) returns (ContractInfo) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get author of the specified contract.
     rpc GetContractAuthor (aelf.Address) returns (aelf.Address) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the code hash of the contract about the specified address.
     rpc GetContractHash (aelf.Address) returns (aelf.Hash) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the address of a system contract by its name.
     rpc GetContractAddressByName (aelf.Hash) returns (aelf.Address) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the registration of a smart contract by its address.
     rpc GetSmartContractRegistrationByAddress (aelf.Address) returns (aelf.SmartContractRegistration) {
         option (aelf.is_view) = true;
     }
-    
+
     // Get the registration of a smart contract by code hash.
     rpc GetSmartContractRegistrationByCodeHash (aelf.Hash) returns (aelf.SmartContractRegistration) {
+        option (aelf.is_view) = true;
+    }
+
+    rpc GetContractCodeHashListByDeployingBlockHeight (google.protobuf.Int64Value) returns (ContractCodeHashList) {
         option (aelf.is_view) = true;
     }
 }
@@ -106,6 +134,9 @@ message ContractInfo
     bool is_system_contract = 5;
     // The version of the current contract.
     int32 version = 6;
+    string contract_version = 7;
+    // Whether it is a user contract.
+    bool is_user_contract = 8;
 }
 
 message ContractDeploymentInput {
@@ -179,6 +210,7 @@ message ContractDeployed
     int32 version = 4;
     // The name of the contract. It has to be unique.
     aelf.Hash Name = 5;
+    string contract_version = 6;
 }
 
 message CodeCheckRequired
@@ -192,6 +224,8 @@ message CodeCheckRequired
     sint32 category = 3;
     // Indicates if the contract is the system contract.
     bool is_system_contract = 4;
+    // Indicates if the contract is the user contract.
+    bool is_user_contract = 5;
 }
 
 message CodeUpdated
@@ -205,6 +239,18 @@ message CodeUpdated
     aelf.Hash new_code_hash = 3;
     // The version of the current contract.
     int32 version = 4;
+    string contract_version = 5;
+}
+
+message AuthorUpdated
+{
+    option (aelf.is_event) = true;
+    // The address of the contract.
+    aelf.Address address = 1 [(aelf.is_indexed) = true];
+    // The old author of the contract.
+    aelf.Address old_author = 2;
+    // The new author of the contract.
+    aelf.Address new_author = 3;
 }
 
 message ValidateSystemContractAddressInput {
@@ -219,4 +265,17 @@ message ReleaseContractInput {
     aelf.Hash proposal_id = 1;
     // The id of the proposed contract.
     aelf.Hash proposed_contract_input_hash = 2;
+}
+
+message ContractCodeHashList {
+    repeated aelf.Hash value = 1;
+}
+
+message ContractCodeHashMap {
+    map<int64, ContractCodeHashList> value = 1;
+}
+
+message SetContractAuthorInput{
+    aelf.Address contract_address = 1;
+    aelf.Address new_author = 2;
 }

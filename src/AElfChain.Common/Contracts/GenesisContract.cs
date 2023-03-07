@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using AElf.Standards.ACS0;
-using AElf.Standards.ACS1;
 using AElf;
 using AElf.Client.Dto;
 using AElf.Contracts.Genesis;
@@ -29,6 +28,12 @@ namespace AElfChain.Common.Contracts
         ReleaseCodeCheckedContract,
         ChangeContractDeploymentController,
         ChangeCodeCheckController,
+        DeployUserSmartContract,
+        UpdateUserSmartContract,
+        ReleaseApprovedUserSmartContract,
+        PerformDeployUserSmartContract,
+        PerformUpdateUserSmartContract,
+        SetContractAuthor,
 
         //view
         CurrentContractSerialNumber,
@@ -85,6 +90,64 @@ namespace AElfChain.Common.Contracts
             return txResult.Status.ConvertTransactionResultStatus() == TransactionResultStatus.Mined;
         }
 
+        public TransactionResultDto DeployUserSmartContract(string contractFileName, string author = null)
+        {
+            var contractReader = new SmartContractReader();
+            var codeArray = contractReader.Read(contractFileName);
+            var sender = author ?? CallAddress;
+            SetAccount(sender);
+            var txResult = ExecuteMethodWithResult(GenesisMethod.DeployUserSmartContract, new ContractDeploymentInput
+            {
+                Code = ByteString.CopyFrom(codeArray),
+                Category = 0
+            });
+
+            return txResult;
+        }
+        
+        public string DeployUserSmartContractWithoutResult(string contractFileName, string author = null)
+        {
+            var contractReader = new SmartContractReader();
+            var codeArray = contractReader.Read(contractFileName);
+            var sender = author ?? CallAddress;
+            SetAccount(sender);
+            var txId = ExecuteMethodWithTxId(GenesisMethod.DeployUserSmartContract, new ContractDeploymentInput
+            {
+                Code = ByteString.CopyFrom(codeArray),
+                Category = 0
+            });
+
+            return txId;
+        }
+        
+        public TransactionResultDto UpdateUserSmartContract(string contractFileName, string contractAddress, string author)
+        {
+            var contractReader = new SmartContractReader();
+            var codeArray = contractReader.Read(contractFileName);
+            SetAccount(author);
+            var txResult = ExecuteMethodWithResult(GenesisMethod.UpdateUserSmartContract, new ContractUpdateInput
+            {
+                Code = ByteString.CopyFrom(codeArray), 
+                Address = Address.FromBase58(contractAddress)
+            });
+
+            return txResult;
+        }
+        
+        public string UpdateUserSmartContractWithoutResult(string contractFileName, string contractAddress, string author)
+        {
+            var contractReader = new SmartContractReader();
+            var codeArray = contractReader.Read(contractFileName);
+            SetAccount(author);
+            var txId = ExecuteMethodWithTxId(GenesisMethod.UpdateUserSmartContract, new ContractUpdateInput
+            {
+                Code = ByteString.CopyFrom(codeArray), 
+                Address = Address.FromBase58(contractAddress)
+            });
+
+            return txId;
+        }
+
         public Address GetContractAddressByName(NameProvider name)
         {
             if (_systemContractAddresses.ContainsKey(name))
@@ -116,6 +179,18 @@ namespace AElfChain.Common.Contracts
             });
             return result;
         }
+        
+        public string ReleaseApprovedContractWithoutResult(ReleaseContractInput input,
+            string caller)
+        {
+            SetAccount(caller);
+            var txId = ExecuteMethodWithTxId(GenesisMethod.ReleaseApprovedContract, new ReleaseContractInput
+            {
+                ProposalId = input.ProposalId,
+                ProposedContractInputHash = input.ProposedContractInputHash
+            });
+            return txId;
+        }
 
         public TransactionResultDto ReleaseCodeCheckedContract(ReleaseContractInput input,
             string caller)
@@ -135,6 +210,15 @@ namespace AElfChain.Common.Contracts
             var tester = GetTestStub<BasicContractZeroImplContainer.BasicContractZeroImplStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.ProposeNewContract.SendAsync(input));
             return result.TransactionResult;
+        }
+        
+        public string ProposeNewContractWithoutResult(ContractDeploymentInput input,
+            string caller = null)
+        {
+            var sender = caller ?? CallAddress;
+            SetAccount(sender);
+            var result = ExecuteMethodWithTxId(GenesisMethod.ProposeNewContract, input);
+            return result;
         }
 
         public TransactionResult ProposeUpdateContract(ContractUpdateInput input,
@@ -172,6 +256,11 @@ namespace AElfChain.Common.Contracts
         public AuthorityInfo GetContractDeploymentController()
         {
             return CallViewMethod<AuthorityInfo>(GenesisMethod.GetContractDeploymentController, new Empty());
+        }
+        
+        public SmartContractRegistration GetSmartContractRegistrationByCodeHash(Hash codeHash)
+        {
+            return CallViewMethod<SmartContractRegistration>(GenesisMethod.GetSmartContractRegistrationByCodeHash, codeHash);
         }
 
         public BasicContractZeroContainer.BasicContractZeroStub GetGensisStub(string callAddress = null)

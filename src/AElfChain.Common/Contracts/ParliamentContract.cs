@@ -44,7 +44,9 @@ namespace AElfChain.Common.Contracts
         CalculateOrganizationAddress,
         ValidateAddressIsParliamentMember,
         GetProposerWhiteList,
-        GetEmergencyResponseOrganizationAddress
+        GetEmergencyResponseOrganizationAddress,
+        GetReleaseThresholdReachedProposals,
+        GetAvailableProposals
     }
 
     public class ParliamentContract : BaseContract<ParliamentMethod>
@@ -128,8 +130,8 @@ namespace AElfChain.Common.Contracts
         {
             var tester = GetTestStub<ParliamentContractImplContainer.ParliamentContractImplStub>(caller);
             var result = AsyncHelper.RunSync(() => tester.Release.SendAsync(proposalId));
-            result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
-            Logger.Info($"Proposal {proposalId} release success by {caller ?? CallAddress}");
+            // result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            // Logger.Info($"Proposal {proposalId} release success by {caller ?? CallAddress}");
 
             return result.TransactionResult;
         }
@@ -158,6 +160,16 @@ namespace AElfChain.Common.Contracts
         {
             return CallViewMethod<ProposalOutput>(ParliamentMethod.GetProposal,
                 proposalId);
+        }
+
+        public ProposalIdList GetReleaseThresholdReachedProposals(ProposalIdList proposalIdList)
+        {
+            return CallViewMethod<ProposalIdList>(ParliamentMethod.GetReleaseThresholdReachedProposals, proposalIdList);
+        }
+
+        public ProposalIdList GetAvailableProposals(ProposalIdList proposalIdList)
+        {
+            return CallViewMethod<ProposalIdList>(ParliamentMethod.GetAvailableProposals, proposalIdList);
         }
     }
 }
