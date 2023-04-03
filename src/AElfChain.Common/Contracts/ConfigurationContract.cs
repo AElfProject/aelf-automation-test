@@ -18,7 +18,8 @@ namespace AElfChain.Common.Contracts
         BlockTransactionLimit,
         RequiredAcsInContracts,
         StateSizeLimit,
-        ExecutionObserverThreshold
+        ExecutionObserverThreshold,
+        UserContractMethodFee
     }
 
     public class ConfigurationContract : BaseContract<ConfigurationMethod>

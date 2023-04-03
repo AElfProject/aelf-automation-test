@@ -18,6 +18,7 @@ namespace AElfChain.Common.Contracts
         AssociationAuth,
         Configuration,
         ReferendumAuth,
+        Economic,
 
         TestBasicFunction,
         TestUpdateFunction,

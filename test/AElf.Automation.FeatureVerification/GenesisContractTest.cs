@@ -338,7 +338,9 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var input = ContractUpdateInput("AElf.Contracts.MultiToken", Tester.ReferendumService.ContractAddress);
             var contractProposalInfo = ProposalUpdateContract(Tester, InitAccount, input);
             ApproveByMiner(Tester, contractProposalInfo.ProposalId);
-            var release = Tester.GenesisService.ReleaseApprovedContract(contractProposalInfo, InitAccount);
+            Logger.Info($"{contractProposalInfo.ProposalId}\n {contractProposalInfo.ProposedContractInputHash}");
+
+            var release = Tester.GenesisService.ReleaseApprovedContract(contractProposalInfo, Creator);
             release.Status.ShouldBe("MINED");
             var byteString =
                 ByteString.FromBase64(release.Logs.First(l => l.Name.Contains(nameof(ProposalCreated))).NonIndexed);
@@ -579,29 +581,47 @@ namespace AElf.Automation.Contracts.ScenarioTest
         public void ParliamentChangeWhiteList()
         {
             var parliament = Tester.ParliamentService;
+            var proposalWhiteList =
+                parliament.CallViewMethod<ProposerWhiteList>(
+                    ParliamentMethod.GetProposerWhiteList, new Empty());
+            Logger.Info(proposalWhiteList);
+
             var defaultAddress = parliament.GetGenesisOwnerAddress();
             var existResult =
                 parliament.CallViewMethod<BoolValue>(ParliamentMethod.ValidateOrganizationExist, defaultAddress);
             existResult.Value.ShouldBeTrue();
-            var proposalWhitList = new List<Address>
+            var addList = new List<Address>
             {
                 Tester.GenesisService.Contract
             };
+            proposalWhiteList.Proposers.AddRange(addList);
             var miners = Tester.GetMiners();
 
             var changeInput = new ProposerWhiteList
             {
-                Proposers = { proposalWhitList }
+                Proposers = { proposalWhiteList.Proposers }
             };
 
             var proposalId = parliament.CreateProposal(parliament.ContractAddress,
                 nameof(ParliamentMethod.ChangeOrganizationProposerWhiteList), changeInput, defaultAddress,
                 miners.First());
             parliament.MinersApproveProposal(proposalId, miners);
+
+            Thread.Sleep(10000);
             parliament.SetAccount(miners.First());
             var release = parliament.ReleaseProposal(proposalId, miners.First());
             release.Status.ShouldBe(TransactionResultStatus.Mined);
 
+            proposalWhiteList =
+                parliament.CallViewMethod<ProposerWhiteList>(
+                    ParliamentMethod.GetProposerWhiteList, new Empty());
+            Logger.Info(proposalWhiteList);
+        }
+
+        [TestMethod]
+        public void GetParliamentChangeWhiteList()
+        {
+            var parliament = Tester.ParliamentService;
             var proposalWhiteList =
                 parliament.CallViewMethod<ProposerWhiteList>(
                     ParliamentMethod.GetProposerWhiteList, new Empty());
@@ -644,6 +664,22 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     contract.ConvertAddress());
             Logger.Info(contractInfo);
         }
+        
+        [TestMethod]
+        public void CheckContract()
+        {
+            var code = "a5105e37575800d643dfd6efac78d048bdee5fe18f685fff0f4dfcc711d50954";
+            var contractInfo =
+                Tester.GenesisService.CallViewMethod<ContractInfo>(GenesisMethod.GetSmartContractRegistrationByCodeHash,
+                    Hash.LoadFromHex(code));
+            Logger.Info(contractInfo);
+
+            var address = "xsnQafDAhNTeYcooptETqWnYBksFGGXxfcQyJJ5tmu6Ak9ZZt"; 
+            contractInfo =
+                Tester.GenesisService.CallViewMethod<ContractInfo>(GenesisMethod.GetSmartContractRegistrationByAddress,
+                    address.ConvertAddress());
+            Logger.Info(contractInfo);
+        }
 
         #endregion
 
@@ -664,20 +700,23 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var proposalLogEvent = result.Logs.First(l => l.Name.Equals(nameof(ProposalCreated))).NonIndexed;
             var proposalId = ProposalCreated.Parser.ParseFrom(ByteString.FromBase64(proposalLogEvent)).ProposalId;
 
-            var returnValue = Hash.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
+            var returnValue = DeployUserSmartContractOutput.Parser.ParseFrom(ByteArrayHelper.HexStringToByteArray(result.ReturnValue));
+            var codeHash = returnValue.CodeHash;
             Logger.Info(
-                $"Code hash: {returnValue.ToHex()}\n ProposalInput: {codeCheckRequired.ProposedContractInputHash.ToHex()}\n Proposal Id: {proposalId.ToHex()}");
+                $"Code hash: {codeHash.ToHex()}\n ProposalInput: {codeCheckRequired.ProposedContractInputHash.ToHex()}\n Proposal Id: {proposalId.ToHex()}");
 
             // var check = CheckProposal(proposalId);
             // check.ShouldBeTrue();
             Thread.Sleep(20000);
 
             var currentHeight = AsyncHelper.RunSync(Tester.NodeManager.ApiClient.GetBlockHeightAsync);
-            var smartContractRegistration = Tester.GenesisService.GetSmartContractRegistrationByCodeHash(returnValue);
+            var smartContractRegistration = Tester.GenesisService.GetSmartContractRegistrationByCodeHash(codeHash);
             smartContractRegistration.ShouldNotBeNull();
             Logger.Info($"Check height: {result.BlockNumber} - {currentHeight}");
 
             var release = FindReleaseApprovedUserSmartContractMethod(result.BlockNumber, currentHeight);
+            Logger.Info(release.TransactionId);
+
             var releaseLogEvent = release.Logs.First(l => l.Name.Equals(nameof(ContractDeployed)));
             var indexed = releaseLogEvent.Indexed;
             var nonIndexed = releaseLogEvent.NonIndexed;
@@ -694,7 +733,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                         $"{contractDeployedNonIndexed.Name}\n" +
                         $"{contractDeployedNonIndexed.Version}\n" +
                         $"{contractDeployedNonIndexed.ContractVersion}");
-        }
+        } 
 
         [TestMethod]
         [DataRow("AElf.Contracts.TestContract.BasicSecurity-nopatched-1.1.0",
@@ -849,6 +888,29 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
         
         [TestMethod]
+        public void DeployInSameBlockWithSameAssembly()
+        {
+            var fileList = new List<string>
+            {
+                "AElf.Contracts.TestContract.BasicFunction-patched-1.0.0",
+                "AElf.Contracts.TestContract.BasicFunction-patched-1.1.0"
+            };
+            var rawTxList = new List<string>();
+            var txList = new List<string>();
+            foreach (var file in fileList)
+            {
+                var rawTx = Tester.GenesisService.GenerateDeployUserSmartContract(file, InitAccount);
+                rawTxList.Add(rawTx);
+            }
+            var rawTransactions = string.Join(",", rawTxList);
+            txList.AddRange(Tester.NodeManager.SendTransactions(rawTransactions));
+            
+            foreach (var result in txList.Select(tx =>
+                         AsyncHelper.RunSync(() => Tester.NodeManager.ApiClient.GetTransactionResultAsync(tx))))
+                Logger.Info($"{result.Status.ConvertTransactionResultStatus()},{result.Error}");
+        }
+        
+        [TestMethod]
         public void DeployUpdateInSameBlockWithSameFile()
         {
             var deployFile = "AElf.Contracts.TestContract.BasicFunction-nopatched-1.2.0-1";
@@ -868,17 +930,17 @@ namespace AElf.Automation.Contracts.ScenarioTest
         }
 
         [TestMethod]
-        [DataRow("AElf.Contracts.TestContract.BasicFunction-nopatched-1.2.0",
-            "AElf.Contracts.TestContract.BasicFunction-patched-1.2.0")]
-        public void DeployAndReleaseApprovedInSameBlock(string noPatchedFile, string patchedFile)
+        [DataRow("AElf.Contracts.TestContract.BasicSecurity-patched-1.3.0-1",
+            "AElf.Contracts.TestContract.BasicFunction-patched-noACS1-1.1.0")]
+        public void DeployAndReleaseApprovedInSameBlock(string deployUserContractFile, string proposalContractFile)
         {
             var txList = new List<string>();
-            var input = ContractDeploymentInput(patchedFile);
+            var input = ContractDeploymentInput(proposalContractFile);
             var contractProposalInfo = ProposalNewContract(Tester, Creator, input); 
             ApproveByMiner(Tester, contractProposalInfo.ProposalId);
             
             var releaseTxId = Tester.GenesisService.ReleaseApprovedContractWithoutResult(contractProposalInfo, Creator);
-            var deployTxId = Tester.GenesisService.DeployUserSmartContractWithoutResult(noPatchedFile, Author);
+            var deployTxId = Tester.GenesisService.DeployUserSmartContractWithoutResult(deployUserContractFile, Author);
             
             txList.Add(releaseTxId);
             txList.Add(deployTxId);
@@ -894,6 +956,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
             var proposalId = ProposalCreated.Parser
                 .ParseFrom(ByteString.FromBase64(logs.NonIndexed)).ProposalId;
             var hash = contractProposalInfo.ProposedContractInputHash;
+            Logger.Info($"ProposalId: {proposalId.ToHex()}\n" +
+                        $"ContractInputHash: {hash.ToHex()}");
+            
+            Thread.Sleep(5000);
+            
             var releaseCodeCheckInput = new ReleaseContractInput
             {
                 ProposalId = proposalId,
@@ -950,7 +1017,7 @@ namespace AElf.Automation.Contracts.ScenarioTest
                     ProposalId = Hash.LoadFromHex(proposalId),
                     ProposedContractInputHash = Hash.LoadFromHex(proposalHash)
                 });
-            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
+            result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.NodeValidationFailed);
         }
         
         

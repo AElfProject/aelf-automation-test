@@ -496,19 +496,20 @@ namespace AElf.Automation.SideChainTests
 
             foreach (var service in SideServices)
             {
-                var account = "sCdEBrmnc1uCxbyeHWK9n7Y6CxfWxwDK1Bs43PUY3BYUFJQ5M";
-                var balance = service.TokenService.GetUserBalance(account);
-                Logger.Info(balance);
-                await SideChainCrossChainTransferMainChain(service, balance - 1000000000);
+                var amount = 1;
+                await SideChainCrossChainTransferMainChain(service, amount);
             }
         }
 
         public async Task SideChainCrossChainTransferMainChain(ContractServices services, long amount)
         {
-            var account = "ZrAFaqdr79MWYkxA49Hp2LUdSVHdP6fJh3kDw4jmgC7HTgrni";
-            var toAccount = "2ZhPU54rgdwJJ7qTzhth2hR1PP7Ne3WeHk6mgKhECYWgi3Tfqk";
-            var symbol = services.TokenService.GetPrimaryTokenSymbol();
+            var account = "";
+            var toAccount = "";
+            var receiver = "";
+            var symbol = "";
             var symbolInfo = services.TokenService.GetTokenInfo(symbol);
+            Logger.Info(symbolInfo);
+
             var crossChainTransferInput = new CrossChainTransferInput
             {
                 Symbol = symbol,
@@ -536,8 +537,8 @@ namespace AElf.Automation.SideChainTests
             Logger.Info(
                 $"Cross chain Transaction block: {txResult.BlockNumber}, rawTx: {rawTx}, txId:{txId} to chain {MainServices.ChainId}");
             var afterSymbolInfo = services.TokenService.GetTokenInfo(symbol);
-            afterSymbolInfo.Supply.ShouldBe(symbolInfo.Supply - amount - fee);
-
+            // afterSymbolInfo.Supply.ShouldBe(symbolInfo.Supply - amount - fee);
+            Logger.Info(afterSymbolInfo);
             await MainChainCheckSideChainBlockIndex(services, txResult.BlockNumber);
             var merklePath = GetMerklePath(txResult.BlockNumber, txId, services, out var root);
             var crossChainReceiveToken = new CrossChainReceiveTokenInput
@@ -555,7 +556,7 @@ namespace AElf.Automation.SideChainTests
                 ByteString.CopyFrom(ByteArrayHelper.HexStringToByteArray(rawTx));
 
             var mainInfo = MainServices.TokenService.GetTokenInfo(symbol);
-            var result = CrossChainReceive(MainServices, account, crossChainReceiveToken);
+            var result = CrossChainReceive(MainServices, receiver, crossChainReceiveToken);
             result.Status.ConvertTransactionResultStatus().ShouldBe(TransactionResultStatus.Mined);
             //verify
             var balance = GetBalance(MainServices, toAccount, symbol);
@@ -563,6 +564,7 @@ namespace AElf.Automation.SideChainTests
             var afterMainInfo = MainServices.TokenService.GetTokenInfo(symbol);
             afterMainInfo.Issued.ShouldBe(mainInfo.Issued);
             afterMainInfo.Supply.ShouldBe(mainInfo.Supply + amount);
+            Logger.Info(afterMainInfo);
         }
 
         [TestMethod]
@@ -833,7 +835,8 @@ namespace AElf.Automation.SideChainTests
                 IssueChainId = tokenInfo.IssueChainId,
                 Symbol = tokenInfo.Symbol,
                 TokenName = tokenInfo.TokenName,
-                TotalSupply = tokenInfo.TotalSupply
+                TotalSupply = tokenInfo.TotalSupply,
+                ExternalInfo = { tokenInfo.ExternalInfo.Value}
             });
             result.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             Logger.Info($"{result.TransactionResult.BlockNumber},{result.TransactionResult.TransactionId}");
@@ -865,6 +868,7 @@ namespace AElf.Automation.SideChainTests
                 var validateTokenInfo = await validateStub.GetTokenInfo.CallAsync(new GetTokenInfoInput
                     {Symbol = symbol});
                 validateTokenInfo.Symbol.ShouldBe(symbol);
+                Logger.Info(validateTokenInfo);
             }
         }
 

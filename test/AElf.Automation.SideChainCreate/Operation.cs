@@ -72,6 +72,8 @@ namespace AElf.Automation.SideChainCreate
         public void ApproveToken(long amount)
         {
             //token approve
+            if (amount == 0)
+                return;
             TokenService.SetAccount(Creator, Password);
             TokenService.ExecuteMethodWithResult(TokenMethod.Approve,
                 new ApproveInput

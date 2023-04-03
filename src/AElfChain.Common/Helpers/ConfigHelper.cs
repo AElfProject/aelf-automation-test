@@ -25,11 +25,11 @@ namespace AElfChain.Common.Helpers
             return _instance;
         }
 
-        public static T GetConfigInfo(string configFile)
+        public static T GetConfigInfo(string configFile, bool isConfigFolder = true)
         {
             if (_instance != null) return _instance;
 
-            var path = CommonHelper.MapPath($"config/{configFile}");
+            var path = isConfigFolder ? CommonHelper.MapPath($"config/{configFile}"): CommonHelper.MapPath($"{configFile}");
             if (!File.Exists(path))
                 throw new FileNotFoundException("Config file not exist.");
             ConfigFile = path;
