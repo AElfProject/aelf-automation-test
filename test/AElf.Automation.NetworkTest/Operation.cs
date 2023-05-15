@@ -102,7 +102,7 @@ namespace AElf.Automation.NetworkTest
                 if (changed == false) continue;
                 var peers = nodeManager.NetGetPeers();
                 Logger.Info($"Node {node} peer: {peers.Count}");
-                foreach (var res in peers) Logger.Info($"{res.IpAddress}, {res.Inbound}");
+                foreach (var res in peers) Logger.Info($"{res.IpAddress}, {res.Inbound}, {res.ConnectionStatus}");
             }
 
             var height = AsyncHelper.RunSync(nodeManager.ApiClient.GetBlockHeightAsync);

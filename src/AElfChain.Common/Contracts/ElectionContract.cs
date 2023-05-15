@@ -10,6 +10,7 @@ namespace AElfChain.Common.Contracts
         //action
         InitialElectionContract,
         AnnounceElection,
+        AnnounceElectionFor,
         QuitElection,
         Vote,
         Withdraw,

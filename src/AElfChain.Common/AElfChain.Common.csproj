@@ -25,6 +25,8 @@
         <ProtoMessage Include="Protobuf\Proto\transaction_fee.proto" />
         <ProtoContract Include="Protobuf\Proto\acs5_plugin_test_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\acs8_plugin_test_contract.proto" />
+        <ProtoContract Include="Protobuf\Proto\basic_contract_zero.proto" />
+        <ProtoContract Include="Protobuf\Proto\basic_contract_zero_impl.proto" />
         <ProtoContract Include="Protobuf\Proto\test_basic_function_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_basic_function_with_parallel_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\test_basic_security_contract.proto" />
@@ -41,8 +43,6 @@
         <ProtoContract Include="Protobuf\Proto\token_contract_impl.proto" />
         <ProtoContract Include="Protobuf\Proto\treasury_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\treasury_contract_impl.proto" />
-        <ProtoContract Include="Protobuf\Proto\basic_contract_zero.proto" />
-        <ProtoContract Include="Protobuf\Proto\basic_contract_zero_impl.proto" />
         <ProtoContract Include="Protobuf\Proto\election_contract.proto" />
         <ProtoContract Include="Protobuf\Proto\election_contract_impl.proto" />
         <ProtoContract Include="Protobuf\Proto\profit_contract.proto" />
@@ -73,7 +73,7 @@
     <ItemGroup>
         <!--AElf packages-->
         <PackageReference Include="AElf.Kernel.Types" Version="1.2.3" />
-        <PackageReference Include="AElf.Types" Version="1.2.3" />
+        <PackageReference Include="AElf.Types" Version="1.3.0" />
         <PackageReference Include="AElf.CSharp.Core" Version="1.2.3" />
         <PackageReference Include="AElf.Cryptography" Version="1.2.3" />
         <PackageReference Include="AElf.Client" Version="1.1.0" />

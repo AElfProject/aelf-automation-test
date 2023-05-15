@@ -21,6 +21,7 @@ namespace AElfChain.Common.Contracts
         GetCandidateHistoryInformation,
         GetCurrentMinerList,
         GetCurrentRoundInformation,
+        GetCurrentRoundNumber,
         GetCurrentMinerPubkeyList,
         GetTicketsInfo,
         GetPageableElectionInfo,
@@ -76,6 +77,13 @@ namespace AElfChain.Common.Contracts
             var round = CallViewMethod<Round>(ConsensusMethod.GetRoundInformation, new Int64Value{Value = roundNumber});
 
             return round;
+        }
+        
+        public long GetRoundId()
+        {
+            var round = CallViewMethod<Int64Value>(ConsensusMethod.GetCurrentRoundNumber, new Empty());
+
+            return round.Value;
         }
 
         public List<string> GetCurrentMinersPubkey()
