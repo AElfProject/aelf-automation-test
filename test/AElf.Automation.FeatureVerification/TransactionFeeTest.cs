@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using AElf.Standards.ACS1;
 using AElf.Standards.ACS3;
 using AElf.Contracts.Association;
+using AElf.Contracts.Configuration;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
 using AElf.Contracts.TestContract.TransactionFees;
 using AElf.Contracts.TokenConverter;
 using AElf.CSharp.Core;
 using AElf.CSharp.Core.Extension;
+using AElf.Standards.ACS12;
 using AElf.Types;
 using AElfChain.Common;
 using AElfChain.Common.Contracts;
@@ -40,8 +42,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private ContractManager SideContractManager { get; set; }
 
         private TokenContract _tokenContract;
+        private TokenContract _sideTokenContract;
+
         private TokenConverterContract _tokenConverter;
         private ParliamentContract _parliament;
+        private ParliamentContract _sideParliament;
+
         private GenesisContract _genesisContract;
         private TreasuryContract _treasury;
         private ProfitContract _profit;
@@ -54,8 +60,12 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private TokenContractImplContainer.TokenContractImplStub _tokenContractImpl;
         private TokenContractImplContainer.TokenContractImplStub _sideTokenContractImpl;
 
+        private BasicFunctionContract _basicFunctionContract;
+
         //aFm1FWZRLt7V6wCBUGVmqxaDcJGv9HvYPDUVxF95C9L7sTwXp
         //NUddzDNy8PBMUgPCAcFW7jkaGmofDTEmr5DUoddXDpdR6E85X
+        //V6LuP6FXKPoXqR5V9X2XuufZ8wSwKu4kNJbxY8i9JJ4NDPxib
+        //zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg
         private Dictionary<SchemeType, Scheme> Schemes { get; set; }
         private string InitAccount { get; } = "zptx91dhHVJjJRxf5Wg5KAoMrDrWX6i1H2FAyKAiv2q8VZfbg";
         private string Delegatee1 { get; } = "2gmjRSxgrQJznCHU3cBRgTMbD61zRjMPvSGYB4YNxumkKf6rm7";
@@ -70,9 +80,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
         private string Delegator3 { get; } = "2pmw7ZpB8yxL4ifKU8uH233b6bwE3wnhGb6BXxvFWSuiFd7v1G";
         private string Delegator4 { get; } = "2EyLTpDMvfkcBga6EavVZ5mcbCiWR3PtxSPpFrnWWxJ4SwEeAY";
 
-        // private static string RpcUrl { get; } = "";
-        private static string RpcUrl { get; } = "127.0.0.1:8000";
-        private static string SideRpcUrl { get; } = "";
+        // private static string RpcUrl { get; } = "54.199.254.157:8000";
+        private static string RpcUrl { get; } = "127.0.0.1:8001";
+        // private static string SideRpcUrl { get; } = "35.77.60.71:8000";
+        private static string SideRpcUrl { get; } = "192.168.66.100:8000";
+
 
         private string Symbol { get; } = "TEST";
         private long SymbolFee = 10_00000000;
@@ -94,7 +106,10 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 SideContractManager = new ContractManager(SideNodeManager, InitAccount);
                 SideAuthority = new AuthorityManager(SideNodeManager, InitAccount);
                 _sideTokenContractImpl = SideContractManager.TokenImplStub;
-                _acs8ContractB = new TransactionFeesContract(NodeManager, InitAccount);
+                // _acs8ContractB = new TransactionFeesContract(SideNodeManager, InitAccount);
+                _sideTokenContractImpl = SideContractManager.TokenImplStub;
+                _sideParliament = SideContractManager.Parliament;
+                _sideTokenContract = SideContractManager.Token;
             }
 
             NodeManager = new NodeManager(RpcUrl);
@@ -113,20 +128,19 @@ namespace AElf.Automation.Contracts.ScenarioTest
             Schemes = ProfitContract.Schemes;
 
             _tokenConverterSub = _genesisContract.GetTokenConverterStub(InitAccount);
-            _acs8ContractA = new TransactionFeesContract(SideNodeManager, InitAccount);
-            _sideTokenContractImpl = SideContractManager.TokenImplStub;
-//            _acs8ContractB = new TransactionFeesContract(NodeManager, InitAccount,
-//                "Xg6cJsRnCuznxHC1JAyB8XSmxfDnCKTQeJN9fP4ca938MBYgU");
-//           TransferFewResource();
-            InitializeFeesContract(_acs8ContractA);
-//           InitializeFeesContract(_acs8ContractB);
-            _acs8SubA =
-                _acs8ContractA.GetTestStub<TransactionFeesContractContainer.TransactionFeesContractStub>(InitAccount);
-//            _acs8SubB =
-//                _acs8ContractB.GetTestStub<TransactionFeesContractContainer.TransactionFeesContractStub>(InitAccount);
-            CreateAndIssueToken(100000_00000000, Symbol);
-            CreateAndIssueToken(100000_00000000, "ABC");
-            // CreateAndIssueToken(100000_00000000, "DDD");
+            _basicFunctionContract = new BasicFunctionContract(NodeManager, InitAccount, "2LUmicHyH4RXrMjG4beDwuDsiWJESyLkgkwPdGTR8kahRzq5XS");
+            // _acs8ContractA = new TransactionFeesContract(SideNodeManager, InitAccount);
+            // _sideTokenContractImpl = SideContractManager.TokenImplStub;
+           // TransferFewResource();
+            // InitializeFeesContract(_acs8ContractA);
+           // InitializeFeesContract(_acs8ContractB);
+            // _acs8SubA =
+            // _acs8ContractA.GetTestStub<TransactionFeesContractContainer.TransactionFeesContractStub>(InitAccount);
+            // _acs8SubB =
+                // _acs8ContractB.GetTestStub<TransactionFeesContractContainer.TransactionFeesContractStub>(InitAccount);
+            // CreateAndIssueToken(100000_00000000, Symbol);
+            // CreateAndIssueToken(100000_00000000, "ABC");
+            // CreateAndIssueToken(100000_00000000, "USDT");
         }
 
         #region ACS8
@@ -377,6 +391,11 @@ namespace AElf.Automation.Contracts.ScenarioTest
                 "SetMethodFee", input,
                 InitAccount, organization);
             result.Status.ShouldBe(TransactionResultStatus.Mined);
+            fee = _tokenContract.CallViewMethod<MethodFees>(TokenMethod.GetMethodFee, new StringValue
+            {
+                Value = nameof(TokenMethod.Transfer)
+            });
+            Logger.Info(fee);
         }
 
         [TestMethod]
@@ -451,6 +470,40 @@ namespace AElf.Automation.Contracts.ScenarioTest
 
             var afterBalance = _tokenContract.GetUserBalance(InitAccount, Symbol);
             afterBalance.ShouldBe(balance - SymbolFee);
+        }
+
+        #endregion
+
+        #region ACS12
+
+        [TestMethod]
+        public void SetAcs12MethodFee()
+        {
+            var configuration = _genesisContract.GetConfigurationContract(InitAccount);
+            var transactionFee = new UserContractMethodFees
+            {
+                Fees =
+                {
+                    new UserContractMethodFee
+                    {
+                        Symbol = "ELF", 
+                        BasicFee = 100000000
+                    }
+                },
+                IsSizeFeeFree = false
+            };
+            var setConfigurationResult = AuthorityManager.ExecuteTransactionWithAuthority(
+                ContractManager.Configuration.ContractAddress, nameof(ConfigurationMethod.SetConfiguration),
+                new SetConfigurationInput
+                {
+                    Key = nameof(ConfigurationNameProvider.UserContractMethodFee),
+                    Value = transactionFee.ToByteString()
+                }, ContractManager.CallAddress);
+            setConfigurationResult.Status.ShouldBe(TransactionResultStatus.Mined);
+            
+            var methodFees = configuration.CallViewMethod<UserContractMethodFees>(ConfigurationMethod.GetConfiguration, new StringValue
+                {Value = nameof(ConfigurationNameProvider.UserContractMethodFee)});
+           Logger.Info(methodFees);
         }
 
         #endregion
